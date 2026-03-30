@@ -1,0 +1,95 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="assets\fonts\ITCAvantGardeStd-Bk.otf" />
+    <None Remove="assets\fonts\ITCAvantGardeStd-Bold.otf" />
+    <None Remove="assets\fonts\ITCAvantGardeStd-Demi.otf" />
+    <None Remove="assets\fonts\ITCAvantGardeStd-Md.otf" />
+    <None Remove="assets\fonts\SourceHanSerifCN-Bold.ttf" />
+    <None Remove="assets\fonts\SourceHanSerifCN-ExtraLight.ttf" />
+    <None Remove="assets\fonts\SourceHanSerifCN-Heavy.ttf" />
+    <None Remove="assets\fonts\SourceHanSerifCN-Light.ttf" />
+    <None Remove="assets\fonts\SourceHanSerifCN-Medium.ttf" />
+    <None Remove="assets\fonts\SourceHanSerifCN-Regular.ttf" />
+    <None Remove="assets\fonts\SourceHanSerifCN-SemiBold.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.72" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3856.49" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\fonts\ITCAvantGardeStd-Bk.otf" />
+    <Resource Include="assets\fonts\ITCAvantGardeStd-Bold.otf" />
+    <Resource Include="assets\fonts\ITCAvantGardeStd-Demi.otf" />
+    <Resource Include="assets\fonts\ITCAvantGardeStd-Md.otf" />
+    <Resource Include="assets\fonts\SourceHanSerifCN-Bold.ttf" />
+    <Resource Include="assets\fonts\SourceHanSerifCN-ExtraLight.ttf" />
+    <Resource Include="assets\fonts\SourceHanSerifCN-Heavy.ttf" />
+    <Resource Include="assets\fonts\SourceHanSerifCN-Light.ttf" />
+    <Resource Include="assets\fonts\SourceHanSerifCN-Medium.ttf" />
+    <Resource Include="assets\fonts\SourceHanSerifCN-Regular.ttf" />
+    <Resource Include="assets\fonts\SourceHanSerifCN-SemiBold.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="expenses.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="frontend\assets\vendor\echarts.min.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="frontend\assets\vendor\vue.global.prod.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="frontend\index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="frontend\js\api.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="frontend\js\charts.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="frontend\js\index.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="frontend\js\month_detail.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="frontend\js\utils.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="frontend\month_detail.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="frontend\style.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="assets\fonts\FontMixed.CompositeFont" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\fonts\FontMixed.CompositeFont" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="frontend\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

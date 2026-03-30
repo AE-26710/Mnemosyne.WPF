@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FamilyCollection
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/composite-font"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:s="clr-namespace:System;assembly=mscorlib">
+
+  <FamilyNames>
+    <s:String x:Key="en-us">Mnemosyne Mixed</s:String>
+    <s:String x:Key="zh-cn">Mnemosyne Mixed</s:String>
+  </FamilyNames>
+
+  <!-- 先放中文映射（更具体） -->
+  <FontFamilyMap
+      Unicode="2E80-2EFF,2F00-2FDF,3000-303F,3400-4DBF,4E00-9FFF,F900-FAFF,FF00-FFEF,20000-2A6DF,2A700-2B73F,2B740-2B81F,2B820-2CEAF,2CEB0-2EBEF,3007"
+      Target="pack://application:,,,/assets/fonts/SourceHanSerifCN-Regular.ttf#Source Han Serif CN"/>
+
+  <!-- 再放默认：英文、数字、常规符号 -->
+  <FontFamilyMap
+      Target="pack://application:,,,/assets/fonts/ITCAvantGardeStd-Md.otf#ITC Avant Garde Std"/>
+</FamilyCollection>
