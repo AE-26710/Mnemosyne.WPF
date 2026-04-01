@@ -16,7 +16,6 @@ namespace Mnemosyne.WPF
         $"Data Source={Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "expenses.db")}";
 
         private ExpenseRepository _repo = new ExpenseRepository();
-
         
         private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
         {
@@ -28,6 +27,7 @@ namespace Mnemosyne.WPF
 
         public MainWindow()
         {
+            SqlMapper.AddTypeHandler(new DateOnlyTypeHandler());
             InitializeComponent();
             InitializeWebViewAsync();
         }
@@ -128,12 +128,12 @@ namespace Mnemosyne.WPF
             int pageSize = payload.TryGetProperty("pageSize", out var ps) ? ps.GetInt32() : -1;
             string? month = payload.TryGetProperty("month", out var m) ? m.GetString() : null;
 
-            DateTime? startDate = null;
-            DateTime? endDate = null;
+            DateOnly? startDate = null;
+            DateOnly? endDate = null;
 
             if (!string.IsNullOrEmpty(month) && month.Length == 7)
             {
-                startDate = DateTime.Parse(month + "-01");
+                startDate = DateOnly.Parse(month + "-01");
                 endDate = startDate.Value.AddMonths(1).AddDays(-1);
             }
 
@@ -152,7 +152,7 @@ namespace Mnemosyne.WPF
         }
 
         // 解析前端传来的日期字符串，支持 "yyyy-MM-dd" 和 ISO 8601 两种格式
-        private static DateTime ParsePayloadDate(JsonElement payload, string propertyName)
+        private static DateOnly ParsePayloadDate(JsonElement payload, string propertyName)
         {
             if (!payload.TryGetProperty(propertyName, out var dateEl))
                 throw new ArgumentException($"缺少字段: {propertyName}");
@@ -162,7 +162,7 @@ namespace Mnemosyne.WPF
                 throw new ArgumentException($"字段为空: {propertyName}");
 
             // 例如前端传 "2026-03-30"
-            if (DateTime.TryParseExact(
+            if (DateOnly.TryParseExact(
                 dateText,
                 "yyyy-MM-dd",
                 CultureInfo.InvariantCulture,

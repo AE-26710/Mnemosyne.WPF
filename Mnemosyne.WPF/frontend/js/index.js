@@ -3,7 +3,7 @@
     // 从刚才提取的 utils 中解构需要的工具函数
     // 类似于C++的 using MnemosyneUtils::formatCurrency;
     // 这样就可以直接使用 formatCurrency() 而不是 MnemosyneUtils.formatCurrency()
-    const { formatCurrency, formatDate, getRateClass, toPieData } = MnemosyneUtils;
+    const { formatCurrency, getRateClass, toPieData } = MnemosyneUtils;
     
     const PLATFORM_OPTIONS = ['Steam', '崩坏：星穹铁道', '崩坏3', '战争雷霆'];
 
@@ -332,7 +332,6 @@
                 changePage,
                 getRateClass,
                 formatCurrency,
-                formatDate,
                 selectedMonth,
                 showModal,
                 isEditing,

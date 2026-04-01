@@ -66,7 +66,7 @@
                     </div>
 
                     <div class="receipt-item" v-for="item in group.items" :key="item.id">
-                        <div class="receipt-item-date">{{ formatDate(item.expenseDate) }}</div>
+                        <div class="receipt-item-date">{{ item.expenseDate }}</div>
                         <div class="receipt-item-main">
                             <div class="receipt-item-name">{{ item.itemName }}</div>
                         </div>

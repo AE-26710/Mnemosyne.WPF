@@ -11,7 +11,7 @@ namespace Mnemosyne.WPF.Models
     public class Expense
     {
         public int Id { get; set; }
-        public DateTime ExpenseDate { get; set; }
+        public DateOnly ExpenseDate { get; set; }
         public required string Platform { get; set; }
         public double Amount { get; set; }
         public required string ItemName { get; set; }

@@ -30,8 +30,8 @@ namespace Mnemosyne.WPF.Services
         public (List<Expense> Data, int TotalCount) GetExpenses(
             int page = 1,
             int pageSize = 10,
-            DateTime? startDate = null,
-            DateTime? endDate = null,
+            DateOnly? startDate = null,
+            DateOnly? endDate = null,
             string? platform = null,
             string? tag = null)
         {
@@ -96,7 +96,7 @@ namespace Mnemosyne.WPF.Services
             {
                 var sql = @"
                     INSERT INTO expenses (ExpenseDate, Platform, Amount, ItemName, Tags) 
-                    VALUES (@ExpenseDate, @Platform, @Amount, @ItemName, @Tags)";
+                    VALUES (date(@ExpenseDate), @Platform, @Amount, @ItemName, @Tags)";
                 connection.Execute(sql, expense);
             }
         }
@@ -106,7 +106,7 @@ namespace Mnemosyne.WPF.Services
             {
                 var sql = @"
             UPDATE expenses 
-            SET ExpenseDate = @ExpenseDate, Platform = @Platform, 
+            SET ExpenseDate = date(@ExpenseDate), Platform = @Platform, 
                 Amount = @Amount, ItemName = @ItemName, Tags = @Tags
             WHERE Id = @Id"; // 记得模型里要有 Id 字段
                 connection.Execute(sql, expense);
@@ -204,7 +204,7 @@ namespace Mnemosyne.WPF.Services
             using var connection = new SqliteConnection(_connectionString);
             connection.Open();
 
-            DateTime now = DateTime.Now;
+            DateOnly now = DateOnly.FromDateTime(DateTime.Now);
             string displayMonth = now.ToString("yyyy-MM");
             string displayYear = now.ToString("yyyy");
             string lastMonth = now.AddMonths(-1).ToString("yyyy-MM");
@@ -237,8 +237,7 @@ namespace Mnemosyne.WPF.Services
                 ServerTime = new
                 {
                     DisplayMonth = displayMonth,
-                    DisplayYear = displayYear,
-                    FullText = now.ToString("yyyy年MM月dd日 HH:mm")
+                    DisplayYear = displayYear
                 },
                 HistoricalTotal = historicalTotal,
                 ThisMonth = thisMonthTotal,

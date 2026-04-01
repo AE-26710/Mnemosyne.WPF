@@ -140,7 +140,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="item in records" :key="item.id">
-                        <td>{{ formatDate(item.expenseDate) }}</td>
+                        <td>{{ item.expenseDate }}</td>
                         <td>{{ item.itemName }}</td>
                         <td>{{ item.platform }}</td>
                         <td :class="{ 'rate-down': item.amount < 0 }">¥ {{ formatCurrency(item.amount) }}</td>
