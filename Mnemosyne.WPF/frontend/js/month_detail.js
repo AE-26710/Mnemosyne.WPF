@@ -2,7 +2,7 @@
     const { createApp, ref, onMounted, computed } = Vue;
     // 从 utils 中解构详情页需要的函数
     const { 
-        formatCurrency, formatDate, getRateClass, sumAmounts, filterByTag, 
+        formatCurrency, getRateClass, sumAmounts, filterByTag, 
         calcGrowthRate, getPreviousMonth, getSameMonthLastYear, getDaysInMonth, 
         buildDailyHeatmapData, toPieData 
     } = MnemosyneUtils;
@@ -131,7 +131,6 @@
                 fireflyIndex,
                 getRateClass,
                 formatCurrency,
-                formatDate,
             };
         },
     }).mount('#app');

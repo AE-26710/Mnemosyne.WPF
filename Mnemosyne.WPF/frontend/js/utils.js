@@ -9,13 +9,20 @@
 
     // 格式化日期
     utils.formatDate = (dateStr) => {
+        // 如果是空字符串或 null/undefined，直接返回 '-'
         if (!dateStr) return '-';
+        // 如果已经是 'YYYY-MM-DD' 格式，直接返回
         if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+        // 尝试转换为 Date 对象
         const date = new Date(dateStr);
-        if (Number.isNaN(date.getTime())) return dateStr;
+        // 如果转换失败，抛出错误
+        if (Number.isNaN(date.getTime())) {
+        throw new Error(`Invalid Date: The provided string "${dateStr}" could not be parsed.`);
+        }
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
+        // 返回 'YYYY-MM-DD' 格式的字符串
         return `${year}-${month}-${day}`;
     };
 
@@ -68,22 +75,6 @@
             const tags = Array.isArray(item.tagsList) ? item.tagsList : [];
             return tags.includes(tagName);
         });
-    };
-
-    utils.buildDailyHeatmapData = (recordsData) => {
-        const dailySum = {};
-        let maxAmount = 0;
-        recordsData.forEach((item) => {
-            const date = utils.formatDate(item.expenseDate);
-            const amount = Number(item.amount) || 0;
-            dailySum[date] = (dailySum[date] || 0) + amount;
-        });
-        const heatmapData = [];
-        for (const [date, amount] of Object.entries(dailySum)) {
-            heatmapData.push([date, amount]);
-            if (amount > maxAmount) maxAmount = amount;
-        }
-        return { heatmapData, maxAmount };
     };
 
     utils.toPieData = (rows) => {
