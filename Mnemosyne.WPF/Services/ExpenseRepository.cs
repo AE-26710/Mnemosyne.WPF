@@ -3,6 +3,7 @@ using Microsoft.Data.Sqlite;
 using Mnemosyne.WPF.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Mnemosyne.WPF.Services
@@ -182,10 +183,15 @@ namespace Mnemosyne.WPF.Services
                 var limitedQuery = $"SELECT * FROM ({query.TrimEnd(';')}) AS _q LIMIT 500";
                 var rows = connection.Query(limitedQuery).ToList();
 
-                // 提取列名 (如果有数据的话)
+                // 提取列名并转成 camelCase，便于前端与序列化后的键名匹配
                 var columns = rows.Count > 0 ? ((IDictionary<string, object>)rows[0]).Keys.ToList() : new List<string>();
+                var camelColumns = columns
+                    .Select(col => string.IsNullOrEmpty(col)
+                        ? col
+                        : char.ToLowerInvariant(col[0]) + col.Substring(1))
+                    .ToList();
 
-                return new { Status = "success", Data = rows, Columns = columns, Message = "Showing up to 500 rows." };
+                return new { Status = "success", Data = rows, Columns = camelColumns, Message = "Showing up to 500 rows." };
             }
             catch (Exception ex)
             {

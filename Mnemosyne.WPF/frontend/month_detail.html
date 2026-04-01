@@ -6,129 +6,91 @@
     <script src="./assets/vendor/vue.global.prod.js"></script>
     <script src="./assets/vendor/echarts.min.js"></script>
     <link rel="stylesheet" href="./style.css">
-    
-    <style>
-        .detail-layout {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-    </style>
+
 </head>
 <body>
 
+    <div id="app" class="container">
+        <header>
+            <h1 onclick="window.location.href='./index.html'" style="cursor:pointer;">Expense Dashboard</h1>
+            <div style="font-size: var(--fs-xl); font-weight: 500;">{{ currentMonth }} Overview</div>
+        </header>
 
-<div id="app" class="container">
-    <header>
-        <h1 onclick="window.location.href='./index.html'" style="cursor:pointer;">Expense Dashboard</h1>
-        <div style="font-size: var(--fs-xl); font-weight: 500;">{{ currentMonth }} Overview</div>
-    </header>
-<!--
-    <div class="detail-layout">
-        <div class="kpi-card">
-            <h2 class="section-title">本月平台分布</h2>
-            <div id="monthPieChart" style="height: 150px;"></div>
-        </div>
-
-        <div class="kpi-card">
-            <h2 class="section-title">每日支出热力</h2>
-            <div id="monthHeatmapChart" style="height: 350px;"></div>
-        </div>
-    </div>
--->
-    <div class="detail-layout">
-        <div class="kpi-card">
-            <div class="kpi-title">当月总支出</div>
-            <div class="kpi-subtitle">Monthly Expenditure</div>
-            <div class="kpi-value">¥ {{ ( monthlyTotal || 0).toFixed(2) }}</div>
-            <div class="kpi-note">共 {{ records.length }} 笔，日均 ¥ {{ (dailyAvg || 0).toFixed(2) }}</div>
-            <!--
-            <div class="kpi-note">
-                <span :class="rateClass(monthRate)">
-                环比 {{ monthRate >= 0 ? '+' : '' }}{{ monthRate.toFixed(2) }}%
-                </span>
-            </div>-->
-        </div>
-
-        <div class="kpi-card">
-            <div class="kpi-title">环比</div>
-            <div class="kpi-subtitle">MoM</div>
-            <div class="kpi-value" :class="getRateClass(momRate)">
-                {{ momRate >= 0 ? '+' : '' }}{{ momRate.toFixed(2) }}%
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">当月总支出</div>
+                <div class="kpi-subtitle">Monthly Expenditure</div>
+                <div class="kpi-value">¥ {{ ( monthlyTotal || 0).toFixed(2) }}</div>
+                <div class="kpi-note">共 {{ records.length }} 笔，日均 ¥ {{ (dailyAvg || 0).toFixed(2) }}</div>
             </div>
-            <div class="kpi-note">
-                上月总计：¥ {{ (lastMonthTotal || 0).toFixed(2) }}
-            </div>
-        </div>
 
-        <!--
-        <div class="kpi-card">
-            <div class="kpi-title">当月日均支出</div>
-            <div class="kpi-subtitle">Daily Average</div>
-            <div class="kpi-value">¥ {{ (dailyAvg || 0).toFixed(2) }}</div>
-            <div class="kpi-note">按 {{ daysInCurrentMonth }} 天计算</div>
-        </div>
-        -->
-
-        <div class="kpi-card">
-            <div class="kpi-title">同比</div>
-            <div class="kpi-subtitle">YoY</div>
-            <div class="kpi-value" :class="getRateClass(yoyRate)">
-                {{ yoyRate >= 0 ? '+' : '' }}{{ yoyRate.toFixed(2) }}%
-            </div>
-            <div class="kpi-note">
-                去年同月：¥ {{ (lastYearSameMonthTotal || 0).toFixed(2) }}
-            </div>
-        </div>
-
-        <div class="kpi-card">
-            <div class="kpi-title">流萤指数</div>
-            <div class="kpi-subtitle">Firefly Obsession Index</div>
-            <div class="kpi-value">{{ (fireflyIndex || 0).toFixed(2) }}%</div>
-            <div class="kpi-note">总计金额：¥ {{ (fireflyTotal || 0).toFixed(2) }}</div>
-        </div>
-    </div>
-
-    <div class="records-section">
-        <h2 class="section-title" style="display: flex; justify-content: space-between;">
-            <span>消费明细<span class="subtitle">Transaction History</span></span>
-        </h2>
-        <div class="receipt-wrapper" v-if="records.length > 0">
-            <div class="receipt-group" v-for="group in receiptGroups" :key="group.platform">
-                <div class="receipt-group-header">
-                    <span>{{ group.platform }}</span>
-                    <span>{{ group.items.length }} 笔</span>
+            <div class="kpi-card">
+                <div class="kpi-title">环比</div>
+                <div class="kpi-subtitle">MoM</div>
+                <div class="kpi-value" :class="getRateClass(momRate)">
+                    {{ momRate >= 0 ? '+' : '' }}{{ momRate.toFixed(2) }}%
                 </div>
+                <div class="kpi-note">
+                    上月总计：¥ {{ (lastMonthTotal || 0).toFixed(2) }}
+                </div>
+            </div>
 
-                <div class="receipt-item" v-for="item in group.items" :key="item.id">
-                    <div class="receipt-item-date">{{ formatDate(item.expenseDate) }}</div>
-                    <div class="receipt-item-main">
-                        <div class="receipt-item-name">{{ item.itemName }}</div>
+            <div class="kpi-card">
+                <div class="kpi-title">同比</div>
+                <div class="kpi-subtitle">YoY</div>
+                <div class="kpi-value" :class="getRateClass(yoyRate)">
+                    {{ yoyRate >= 0 ? '+' : '' }}{{ yoyRate.toFixed(2) }}%
+                </div>
+                <div class="kpi-note">
+                    去年同月：¥ {{ (lastYearSameMonthTotal || 0).toFixed(2) }}
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-title">流萤指数</div>
+                <div class="kpi-subtitle">Firefly Obsession Index</div>
+                <div class="kpi-value">{{ (fireflyIndex || 0).toFixed(2) }}%</div>
+                <div class="kpi-note">总计金额：¥ {{ (fireflyTotal || 0).toFixed(2) }}</div>
+            </div>
+        </div>
+
+        <div class="records-section">
+            <h2 class="section-title" style="display: flex; justify-content: space-between;">
+                <span>消费明细<span class="subtitle">Transaction History</span></span>
+            </h2>
+            <div class="receipt-wrapper" v-if="records.length > 0">
+                <div class="receipt-group" v-for="group in receiptGroups" :key="group.platform">
+                    <div class="receipt-group-header">
+                        <span>{{ group.platform }}</span>
+                        <span>{{ group.items.length }} 笔</span>
                     </div>
-                    <div class="receipt-item-amount">¥ {{ formatCurrency(item.amount) }}</div>
+
+                    <div class="receipt-item" v-for="item in group.items" :key="item.id">
+                        <div class="receipt-item-date">{{ formatDate(item.expenseDate) }}</div>
+                        <div class="receipt-item-main">
+                            <div class="receipt-item-name">{{ item.itemName }}</div>
+                        </div>
+                        <div class="receipt-item-amount">¥ {{ formatCurrency(item.amount) }}</div>
+                    </div>
+
+                    <div class="receipt-subtotal">
+                        <span>{{ group.platform }} 小计</span>
+                        <span>¥ {{ formatCurrency(group.subtotal) }}</span>
+                    </div>
                 </div>
 
-                <div class="receipt-subtotal">
-                    <span>{{ group.platform }} 小计</span>
-                    <span>¥ {{ formatCurrency(group.subtotal) }}</span>
+                <div class="receipt-total">
+                    <span>总计</span>
+                    <span>¥ {{ formatCurrency(monthlyTotal) }}</span>
                 </div>
             </div>
 
-            <div class="receipt-total">
-                <span>总计</span>
-                <span>¥ {{ formatCurrency(monthlyTotal) }}</span>
-            </div>
+            <div v-else style="text-align:center; color: var(--color-text-muted); padding: 15px;">暂无记录</div>
         </div>
-
-        <div v-else style="text-align:center; color: var(--color-text-muted); padding: 15px;">暂无记录</div>
     </div>
-</div>
-
-<script src="./js/api.js"></script>
-<script src="./js/charts.js"></script>
-<script src="./js/utils.js"></script>
-<script src="./js/month_detail.js"></script>
-
+    <script src="./js/api.js"></script>
+    <script src="./js/charts.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/month_detail.js"></script>
 </body>
 </html>

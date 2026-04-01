@@ -1,6 +1,34 @@
-(function (global) {
+/*
+ECharts Default Color Palette:
+#5470c6	经典深蓝
+#91cc75	柔和草绿
+#fac858	明亮金黄
+#ee6666	珊瑚淡红
+#73c0de	天空浅蓝
+#3ba272	深薄荷绿
+#fc8452	橙红色
+#9a60b4	优雅紫色
+#ea7ccc	玫瑰粉色
+#afb1b7	灰调（备用）
+#67727e	深灰蓝（备用）
+*/
+
+(function(global) {
     const MnemosyneCharts = {};
     const resizeObservers = new WeakMap();
+    const activeCharts = new Set();
+    const platformColors = {
+        '崩坏：星穹铁道': '#FAC858',
+        '崩坏3': '#73C0DE',
+        '战争雷霆': '#EE6666',
+        'Steam': '#5470C6',
+        '明日方舟': '#AFB1B7',
+        'default': '#9E9E9E'
+    };
+
+    function getPlatformColor(platformName) {
+        return platformColors[platformName] || platformColors['default'];
+    }
 
     function bindAutoResize(element, chart) {
         const oldObserver = resizeObservers.get(element);
@@ -20,13 +48,30 @@
         const existing = echarts.getInstanceByDom(element);
         if (existing) {
             existing.dispose();
+            activeCharts.delete(existing);
         }
 
         const chart = echarts.init(element);
         bindAutoResize(element, chart);
         requestAnimationFrame(() => chart.resize());
+        activeCharts.add(chart);
         return chart;
     }
+
+    window.addEventListener('beforeunload', () => {
+        activeCharts.forEach(chart => {
+            const el = chart.getDom();
+            if (el) {
+                const oldObserver = resizeObservers.get(el);
+                if (oldObserver) {
+                    oldObserver.disconnect();
+                    resizeObservers.delete(el);
+                }
+            }
+            chart.dispose();
+        });
+        activeCharts.clear();
+    });
 
     MnemosyneCharts.renderPlatformPie = function (element, pieData) {
         const chart = resetChartInstance(element);
@@ -41,6 +86,9 @@
                         borderRadius: 4,
                         borderColor: '#F4F0EA',
                         borderWidth: 2,
+                        color: function (params) {
+                            return getPlatformColor(params.name);
+                        },
                     },
                     label: {
                         show: true,
@@ -68,6 +116,9 @@
                 type: 'bar',
                 stack: 'total',
                 barMaxWidth: 40,
+                itemStyle: {
+                    color: getPlatformColor(platform),
+                },
                 data: months.map((month) => {
                     const found = rawData.find((d) => d.month === month && d.platform === platform);
                     return found ? found.totalAmount : 0;

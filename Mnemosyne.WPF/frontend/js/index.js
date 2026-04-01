@@ -23,6 +23,7 @@
             });
 
             const fetchKPI = async () => {
+                // 获取 KPI 指标数据并填充仪表盘
                 try {
                     kpi.value = await api.getKPI();
                 } catch (error) {
@@ -31,6 +32,7 @@
             };
 
             const initPieChart = async () => {
+                // 初始化平台分布饼图
                 try {
                     const json = await api.getPlatforms();
                     const pieData = toPieData(json.data);
@@ -48,6 +50,7 @@
             const totalPages = ref(1);
 
             const fetchRecords = async (page = 1) => {
+                // 分页获取消费记录
                 try {
                     const json = await api.getExpenses(page, 10);
                     records.value = json.data;
@@ -59,6 +62,7 @@
             };
 
             const changePage = (newPage) => {
+                // 翻页
                 if (newPage >= 1 && newPage <= totalPages.value) {
                     fetchRecords(newPage);
                 }
@@ -67,6 +71,7 @@
             const selectedMonth = ref(null);
 
             const initBarChart = async () => {
+                // 初始化月度堆叠柱状图
                 try {
                     const json = await api.getMonthlyStacked();
                     const rawData = json.data;
@@ -98,6 +103,7 @@
             const sqlSuccessMessage = ref('');
 
             const handleGlobalKeydown = (e) => {
+                // 监听全局按键触发 SQL 彩蛋
                 if (e.key.length === 1 || e.key === '=') {
                     currentSequence += e.key;
                     if (currentSequence.length > secretSequence.length) {
@@ -114,10 +120,12 @@
             };
 
             const closeSqlModal = () => {
+                // 关闭 SQL 弹窗
                 showSqlModal.value = false;
             };
 
             const executeSql = async () => {
+                // 执行 SQL 并渲染结果表格
                 sqlError.value = '';
                 sqlSuccessMessage.value = '';
                 sqlResult.value = null;
@@ -147,6 +155,7 @@
             const formData = ref({ itemName: '', platform: '', amount: '', tagsInput: '' });
 
             const openForm = () => {
+                // 打开新增表单并预填今天日期
                 isEditing.value = false;
                 editingId.value = null;
 
@@ -168,6 +177,7 @@
             };
 
             const editItem = (item) => {
+                // 打开编辑表单并填充选中记录
                 isEditing.value = true;
                 editingId.value = item.id;
 
@@ -194,6 +204,7 @@
             };
 
             const onPlatformChange = () => {
+                // 平台选择变化时处理自定义输入
                 if (selectedPlatform.value === '__custom__') {
                     if (PLATFORM_OPTIONS.includes(formData.value.platform)) {
                         formData.value.platform = '';
@@ -204,10 +215,12 @@
             };
 
             const closeForm = () => {
+                // 关闭表单
                 showModal.value = false;
             };
 
             const submitForm = async () => {
+                // 校验并提交表单，新增或更新记录
                 const strY = formDate.value.year;
                 const strM = formDate.value.month;
                 const strD = formDate.value.day;
@@ -223,7 +236,7 @@
 
                 const dateObj = new Date(y, m - 1, d);
                 if (dateObj.getFullYear() !== y || dateObj.getMonth() + 1 !== m || dateObj.getDate() !== d) {
-                    alert('请输入正确有效的日期（请检查月份和天数是否正确）！');
+                    alert('请输入正确有效的日期！');
                     return;
                 }
 
@@ -256,16 +269,19 @@
             };
 
             const deleteItem = async (id) => {
+                // 弹出删除确认框
                 pendingDeleteId.value = id;
                 showDeleteConfirm.value = true;
             };
 
             const closeDeleteConfirm = () => {
+                // 关闭删除确认
                 showDeleteConfirm.value = false;
                 pendingDeleteId.value = null;
             };
 
             const confirmDelete = async () => {
+                // 确认删除记录
                 if (pendingDeleteId.value == null) return;
                 try {
                     await api.deleteExpense(pendingDeleteId.value);
@@ -277,13 +293,23 @@
             };
 
             const goToCurrentMonthDetail = () => {
+                // 跳转到当前月份明细页
                 const monthStr = kpi.value.serverTime?.displayMonth;
                 if (monthStr) {
                     window.location.href = `month_detail.html?month=${monthStr}`;
                 }
             };
 
+            const goToCurrentYearDetail = () => {
+                // 跳转到当前年份明细页
+                const yearStr = kpi.value.serverTime?.displayYear;
+                if (yearStr) {
+                    window.location.href = `year_detail.html?year=${yearStr}`;
+                }
+            };
+
             const refreshAllData = () => {
+                // 刷新全部数据和图表
                 fetchKPI();
                 initPieChart();
                 initBarChart();
@@ -334,6 +360,7 @@
                 closeSqlModal,
                 executeSql,
                 goToCurrentMonthDetail,
+                goToCurrentYearDetail,
             };
         },
     }).mount('#app');

@@ -4,10 +4,10 @@ const pendingRequests = new Map();
 
 // 1. 全局监听来自 C# 的消息回传
 if (window.chrome && window.chrome.webview) {
-    window.chrome.webview.addEventListener('message', event => {
+    const handleWpfMessage = event => {
         // C# 端使用 PostWebMessageAsJson 发送的数据，到这里已经是 JS 对象了
         const response = event.data; 
-        
+
         // 根据返回的 id，找到对应的 Promise 并解除等待状态
         if (response && response.id !== undefined) {
             const handlers = pendingRequests.get(response.id);
@@ -24,6 +24,13 @@ if (window.chrome && window.chrome.webview) {
             // 处理 C# 主动推送的消息（如未携带 id 的情况）
             console.log("收到未经请求的 C# 消息:", response);
         }
+    };
+
+    window.chrome.webview.addEventListener('message', handleWpfMessage);
+
+    // 清理事件监听，防止内存泄漏和页面跳转变慢
+    window.addEventListener('beforeunload', () => {
+        window.chrome.webview.removeEventListener('message', handleWpfMessage);
     });
 }
 

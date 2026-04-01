@@ -84,16 +84,6 @@
                 }
             };
 
-            // 新增：初始化热力图的方法
-            const initHeatmapChart = (month, recordsData) => {
-                const { heatmapData, maxAmount } = buildDailyHeatmapData(recordsData);
-
-                // 3. 触发渲染
-                const el = document.getElementById('monthHeatmapChart');
-                if (!el) return;
-                MnemosyneCharts.renderMonthHeatmap(el, heatmapData, month, maxAmount);
-            };
-
             const fetchRecords = async () => {
                 try {
                     const prevMonth = getPreviousMonth(currentMonth.value);
