@@ -89,10 +89,11 @@
 
 /* 全局 CSS 变量：定义颜色、字体等全局样式属性，方便维护和统一风格 */
 :root {
-    --color-bg: #F4F0EA; 
+    --color-bg: #F4F0EA;
     --color-text-main: #1C1C1C;
     --color-text-muted: #7A7A7A;
     --color-border: #E2DCD0;
+    --color-firefly: #8FCACA;
 
     --fs-xs: 0.75rem;
     --fs-sm: 0.875rem;
@@ -101,9 +102,7 @@
     --fs-xl: 1.5rem;
     --fs-2xl: 2rem;
     --fs-3xl: 2.5rem;
-    
-    --color-firefly: #8FCACA;
-    
+
     --font-primary: "ITC Avant Garde Std", "Source Han Serif CN", serif;
 }
 

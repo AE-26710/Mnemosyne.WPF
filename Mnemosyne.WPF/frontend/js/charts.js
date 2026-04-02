@@ -22,9 +22,17 @@ ECharts Default Color Palette:
         '崩坏3': '#73C0DE',
         '战争雷霆': '#EE6666',
         'Steam': '#5470C6',
-        '明日方舟': '#AFB1B7',
+        '明日方舟': '#3BA272',
         'default': '#9E9E9E'
     };
+
+    const rootStyle = getComputedStyle(document.documentElement);
+    const bgColor = rootStyle.getPropertyValue('--color-bg').trim();
+    const mainTextColor = rootStyle.getPropertyValue('--color-text-main').trim();
+    const mutedTextColor = rootStyle.getPropertyValue('--color-text-muted').trim();
+    const borderColor = rootStyle.getPropertyValue('--color-border').trim();
+    const fireflyColor = rootStyle.getPropertyValue('--color-firefly').trim();
+    const fontPrimary = rootStyle.getPropertyValue('--font-primary').trim();
 
     function getPlatformColor(platformName) {
         return platformColors[platformName] || platformColors['default'];
@@ -77,14 +85,25 @@ ECharts Default Color Palette:
         const chart = resetChartInstance(element);
         chart.setOption({
             backgroundColor: 'transparent',
-            tooltip: { trigger: 'item' },
+            tooltip: { 
+                trigger: 'item',
+                backgroundColor: bgColor,
+                borderColor: borderColor,
+                borderWidth: 1,
+                padding: 15,
+                textStyle: {
+                    color: mainTextColor,
+                    fontFamily: fontPrimary,
+                },
+                formatter: '<b>{b}</b><br>¥ {c} ({d}%)'
+            },
             series: [
                 {
                     type: 'pie',
                     radius: ['40%', '70%'],
                     itemStyle: {
                         borderRadius: 4,
-                        borderColor: '#F4F0EA',
+                        borderColor: borderColor,
                         borderWidth: 2,
                         color: function (params) {
                             return getPlatformColor(params.name);
@@ -92,11 +111,11 @@ ECharts Default Color Palette:
                     },
                     label: {
                         show: true,
-                        fontFamily: '"ITC Avant Garde Std", "Source Han Serif CN", serif',
+                        fontFamily: fontPrimary,
                     },
                     labelLine: {
                         lineStyle: {
-                            color: '#7A7A7A',
+                            color: mutedTextColor,
                         },
                     },
                     data: pieData,
@@ -132,13 +151,13 @@ ECharts Default Color Palette:
             tooltip: {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' },
-                backgroundColor: '#F4F0EA',
-                borderColor: '#E2DCD0',
+                backgroundColor: bgColor,
+                borderColor: borderColor,
                 borderWidth: 1,
                 padding: 15,
                 textStyle: {
-                    color: '#1C1C1C',
-                    fontFamily: '"ITC Avant Garde Std", "Source Han Serif CN", serif',
+                    color: mainTextColor,
+                    fontFamily: fontPrimary,
                 },
                 formatter: function (params) {
                     let html = `<div style="font-weight:bold; font-size:1.1rem; margin-bottom:10px;">${params[0].name}</div>`;
@@ -177,7 +196,7 @@ ECharts Default Color Palette:
                     height: 8,
                     bottom: 5,
                     borderColor: 'transparent',
-                    backgroundColor: '#EBE6DE',
+                    backgroundColor: bgColor,
                     fillerColor: '#D3CCC0',
                     handleSize: 0,
                     showDetail: false,
@@ -188,20 +207,20 @@ ECharts Default Color Palette:
                 icon: 'circle',
                 itemGap: 20,
                 textStyle: {
-                    fontFamily: '"ITC Avant Garde Std", "Source Han Serif CN", serif',
+                    fontFamily: fontPrimary,
                 },
             },
             grid: { left: '3%', right: '4%', bottom: '25%', containLabel: true },
             xAxis: {
                 type: 'category',
                 data: months,
-                axisLine: { lineStyle: { color: '#E2DCD0' } },
-                axisLabel: { color: '#7A7A7A', fontFamily: 'ITC Avant Garde Std' },
+                axisLine: { lineStyle: { color: borderColor } },
+                axisLabel: { color: mutedTextColor, fontFamily: fontPrimary },
             },
             yAxis: {
                 type: 'value',
-                splitLine: { lineStyle: { color: '#E2DCD0', type: 'dashed' } },
-                axisLabel: { color: '#7A7A7A', fontFamily: 'ITC Avant Garde Std' },
+                splitLine: { lineStyle: { color: borderColor, type: 'dashed' } },
+                axisLabel: { color: mainTextColor, fontFamily: fontPrimary },
             },
             series: series,
         });
@@ -232,68 +251,5 @@ ECharts Default Color Palette:
     };
 
     global.MnemosyneCharts = MnemosyneCharts;
-    
-    // 渲染月度热力图
-    MnemosyneCharts.renderMonthHeatmap = function (element, heatmapData, monthStr, maxAmount) {
-        const chart = resetChartInstance(element);
-        
-        chart.setOption({
-            backgroundColor: 'transparent',
-            tooltip: {
-                trigger: 'item',
-                formatter: function (p) {
-                    const value = p.value[1] || 0;
-                    return `${p.value[0]}<br/>支出: ¥${value.toFixed(2)}`;
-                }
-            },
-            visualMap: {
-                min: 0,
-                max: maxAmount || 100,
-                type: 'piecewise',
-                orient: 'horizontal',
-                left: 'center',
-                bottom: 0,
-                show: true, // 显示图例以对照深浅
-                text: ['高', '低'],
-                /*
-                inRange: {
-                    // 使用项目定义的复古配色方案
-                    color: ['#E2DCD0', '#B3A894', '#7A7A7A', '#1C1C1C']
-                }
-                    */
-            },
-            calendar: {
-                top: 40,
-                left: 'center',
-                // 1. 设置小方格的大小
-                cellSize: [15, 15], 
-                range: monthStr,
-                // 2. 隐藏月份/年份标签，让布局更紧凑
-                yearLabel: { show: false },
-                monthLabel: { show: false },
-                dayLabel: {
-                    firstDay: 1,
-                    nameMap: ['日', '一', '二', '三', '四', '五', '六'],
-                    fontSize: 10,
-                    color: '#7A7A7A'
-                },
-                // 3. 核心：通过 border 控制间距
-                itemStyle: {
-                    color: '#E2DCD0',
-                    borderWidth: 3,       // 增加边框宽度以产生方格间的空隙
-                    borderColor: '#F4F0EA', // 边框颜色与页面背景一致
-                    borderRadius: 2       // 微小的圆角让方格更像 GitHub
-                },
-                splitLine: { show: false } // 隐藏大分割线
-            },
-            series: {
-                type: 'heatmap',
-                coordinateSystem: 'calendar',
-                data: heatmapData
-            }
-        });
-        
-        return chart;
-    };
 
 })(window);
