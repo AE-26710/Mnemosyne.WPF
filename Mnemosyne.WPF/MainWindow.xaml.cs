@@ -47,11 +47,11 @@ namespace Mnemosyne.WPF
             }
 
             MainWebView.CoreWebView2.SetVirtualHostNameToFolderMapping(
-                "app.local",
+                "app.localhost",
                 frontendDir,
                 CoreWebView2HostResourceAccessKind.Allow);
 
-            MainWebView.CoreWebView2.Navigate("https://app.local/index.html");
+            MainWebView.CoreWebView2.Navigate("https://app.localhost/index.html");
 
 #if DEBUG
             MainWebView.CoreWebView2.OpenDevToolsWindow();
