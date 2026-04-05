@@ -71,7 +71,7 @@
             <div class="kpi-card" style="cursor: pointer;" @click="goToCurrentYearDetail">
                 <div class="kpi-title">当年总支出</div>
                 <div class="kpi-subtitle">Annual Expenditure</div>
-                <div class="kpi-value">¥ {{ (kpi.thisYear || 0).toFixed(2) }}</div>
+                <div class="kpi-value">¥ {{ (kpi.thisYearTotal || 0).toFixed(2) }}</div>
                 <div class="kpi-note">
                     <span>
                         去年总计: ¥ {{ (kpi.lastYearTotal || 0).toFixed(2) }}
@@ -85,7 +85,7 @@
             <div class="kpi-card" style="cursor: pointer;" @click="goToCurrentMonthDetail">
                 <div class="kpi-title">当月总支出</div>
                 <div class="kpi-subtitle">Monthly Expenditure</div>
-                <div class="kpi-value">¥ {{ (kpi.thisMonth || 0).toFixed(2) }}</div>
+                <div class="kpi-value">¥ {{ (kpi.thisMonthTotal || 0).toFixed(2) }}</div>
                 <div class="kpi-note">
                     <span>
                         上月总计: ¥ {{ (kpi.lastMonthTotal || 0).toFixed(2) }}

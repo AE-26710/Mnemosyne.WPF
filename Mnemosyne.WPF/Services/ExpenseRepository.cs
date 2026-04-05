@@ -242,7 +242,7 @@ namespace Mnemosyne.WPF.Services
                 HistoricalTotal = historicalTotal,
                 ThisMonth = thisMonthTotal,
                 LastMonthTotal = lastMonthTotal,
-                ThisYear = thisYearTotal,
+                ThisYearTotal = thisYearTotal,
                 LastYearTotal = lastYearTotal,
                 MomRate = Math.Round(momRate, 2),
                 YearYoyRate = Math.Round(yearYoyRate, 2),

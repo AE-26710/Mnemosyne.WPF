@@ -11,8 +11,8 @@
         setup() {
             const kpi = ref({
                 historicalTotal: 0,
-                thisMonth: 0,
-                thisYear: 0,
+                thisMonthTotal: 0,
+                thisYearTotal: 0,
                 momRate: 0,
                 yoyRate: 0,
                 yearYoyRate: 0,
