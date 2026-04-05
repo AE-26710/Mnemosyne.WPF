@@ -308,6 +308,11 @@
                 }
             };
 
+            const goToFireflyDetail = () => {
+                // 跳转到流萤明细页
+                window.location.href = 'firefly_detail.html';
+            };
+
             const refreshAllData = () => {
                 // 刷新全部数据和图表
                 fetchKPI();
@@ -360,6 +365,7 @@
                 executeSql,
                 goToCurrentMonthDetail,
                 goToCurrentYearDetail,
+                goToFireflyDetail
             };
         },
     }).mount('#app');

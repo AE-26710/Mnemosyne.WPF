@@ -59,7 +59,7 @@
                 </div>
             </div>
 
-            <div class="kpi-card" style="cursor: pointer;">
+            <div class="kpi-card" style="cursor: pointer;" @click="goToFireflyDetail">
                 <div class="kpi-title">流萤指数</div>
                 <div class="kpi-subtitle">Firefly Obsession Index</div>
                 <div class="kpi-value">{{ kpi.fireflyPercent || 0 }}%</div>
@@ -68,7 +68,7 @@
                 </div>
             </div>
 
-            <div class="kpi-card" style="cursor: pointer;" @click="goToCurrentYearDetail">
+            <div class="kpi-card" style="cursor: pointer;"> <!--@click="goToCurrentYearDetail"-->
                 <div class="kpi-title">当年总支出</div>
                 <div class="kpi-subtitle">Annual Expenditure</div>
                 <div class="kpi-value">¥ {{ (kpi.thisYearTotal || 0).toFixed(2) }}</div>

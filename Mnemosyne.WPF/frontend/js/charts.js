@@ -22,12 +22,13 @@ ECharts Default Color Palette:
         '崩坏3': '#73C0DE',
         '战争雷霆': '#EE6666',
         'Steam': '#5470C6',
-        '明日方舟': '#3BA272',
+        '明日方舟': '#91CC75',
         'default': '#9E9E9E'
     };
 
     const rootStyle = getComputedStyle(document.documentElement);
     const bgColor = rootStyle.getPropertyValue('--color-bg').trim();
+    const darkBgColor = rootStyle.getPropertyValue('--color-bg-dark').trim();
     const mainTextColor = rootStyle.getPropertyValue('--color-text-main').trim();
     const mutedTextColor = rootStyle.getPropertyValue('--color-text-muted').trim();
     const borderColor = rootStyle.getPropertyValue('--color-border').trim();
@@ -148,6 +149,7 @@ ECharts Default Color Palette:
         const chart = resetChartInstance(element);
         chart.setOption({
             backgroundColor: 'transparent',
+
             tooltip: {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' },
@@ -184,6 +186,7 @@ ECharts Default Color Palette:
                     return html;
                 },
             },
+
             dataZoom: [
                 {
                     type: 'inside',
@@ -202,6 +205,7 @@ ECharts Default Color Palette:
                     showDetail: false,
                 },
             ],
+
             legend: {
                 bottom: 25,
                 icon: 'circle',
@@ -210,18 +214,22 @@ ECharts Default Color Palette:
                     fontFamily: fontPrimary,
                 },
             },
+
             grid: { left: '3%', right: '4%', bottom: '25%', containLabel: true },
+
             xAxis: {
                 type: 'category',
                 data: months,
                 axisLine: { lineStyle: { color: borderColor } },
                 axisLabel: { color: mutedTextColor, fontFamily: fontPrimary },
             },
+
             yAxis: {
                 type: 'value',
                 splitLine: { lineStyle: { color: borderColor, type: 'dashed' } },
                 axisLabel: { color: mainTextColor, fontFamily: fontPrimary },
             },
+
             series: series,
         });
 
@@ -247,6 +255,92 @@ ECharts Default Color Palette:
             }
         });
 
+        return chart;
+    };
+
+    const fireflyPalette = [
+        '#dcefef', // 极浅绿
+        '#d4ebeb', // 浅薄荷
+        '#8fcaca', // 中薄荷
+        '#4ea5a5', // 深青色
+        '#2d6060'  // 墨绿色
+    ];
+
+    MnemosyneCharts.renderFireflyHeatmap = function (element, heatmapData, year) {
+        /*  element: DOM 元素
+            heatmap: [{<date>, <amount>}, ...]
+            year: string
+        */
+        const chart = resetChartInstance(element);
+    
+        const option = {
+            backgroundColor: 'transparent',
+
+            tooltip: {
+                backgroundColor: bgColor,
+                borderColor: borderColor,
+                borderWidth: 1,
+                textStyle: {
+                    color: mainTextColor,
+                    fontFamily: fontPrimary,
+                },
+                formatter: (params) => {
+                    return `<b>${params.value[0]}</b><br/>
+                            ¥${params.value[1]}</span>`;
+                }
+            },
+
+            visualMap: {
+                type: 'piecewise',
+                min: 0,
+                max: 2000,
+                orient: 'horizontal',
+                left: 'center',
+                bottom: 20,
+                textStyle: { color: mutedTextColor, fontFamily: fontPrimary },
+                pieces: [
+                    { gt: 0, lte: 50, color: fireflyPalette[1], label: '1-50' },
+                    { gt: 50, lte: 200, color: fireflyPalette[2], label: '51-200' },
+                    { gt: 200, lte: 648, color: fireflyPalette[3], label: '201-648' },
+                    { gt: 648, color: fireflyPalette[4], label: '> 648' }
+                ],
+                show: true
+            },
+
+            calendar: {
+                top: 40,
+                left: 40,
+                right: 40,
+                cellSize: ['auto', 22],
+                range: year,
+                splitLine: { show: false },
+                itemStyle: {
+                    color: darkBgColor,
+                    borderWidth: 4,
+                    borderColor: bgColor,
+                    borderRadius: 4
+                },
+                yearLabel: { show: false },
+                dayLabel: { 
+                    firstDay: 1, 
+                    nameMap: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                    color: mutedTextColor,
+                    fontFamily: fontPrimary
+                },
+                monthLabel: { 
+                    color: mainTextColor,
+                    fontFamily: fontPrimary
+                }
+            },
+
+            series: {
+                type: 'heatmap',
+                coordinateSystem: 'calendar',
+                data: heatmapData,
+            }
+        };
+
+        chart.setOption(option);
         return chart;
     };
 
