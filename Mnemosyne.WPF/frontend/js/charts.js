@@ -35,6 +35,57 @@ ECharts Default Color Palette:
     const fireflyColor = rootStyle.getPropertyValue('--color-firefly').trim();
     const fontPrimary = rootStyle.getPropertyValue('--font-primary').trim();
 
+    // 定义所有图表的通用基础配置
+    function getChartsOption() {
+        return {
+            backgroundColor: 'transparent',
+            tooltip: {
+                backgroundColor: bgColor,
+                borderColor: borderColor,
+                borderWidth: 1,
+                padding: 15,
+                textStyle: {
+                    color: mainTextColor,
+                    fontFamily: fontPrimary,
+                }
+            }
+        };
+    }
+
+    // 定义Heatmap的基础配置
+    function getHeatmapBaseOption(year) {
+        const baseOption = getChartsOption();
+        const heatmapSpecific = {
+            calendar: {
+                top: 40,
+                left: 40,
+                right: 40,
+                cellSize: ['auto', 22],
+                splitLine: { show: false },
+                yearLabel: { show: false },
+                range: year,
+                dayLabel: { 
+                    firstDay: 1, 
+                    nameMap: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                    color: mutedTextColor,
+                    fontFamily: fontPrimary
+                },
+                monthLabel: { 
+                    color: mainTextColor,
+                    fontFamily: fontPrimary
+                },
+                itemStyle: {
+                    color: darkBgColor,
+                    borderWidth: 4,
+                    borderColor: bgColor,
+                    borderRadius: 4
+                }
+            }
+        };
+        return { ...baseOption, ...heatmapSpecific };
+    }
+
+
     function getPlatformColor(platformName) {
         return platformColors[platformName] || platformColors['default'];
     }
@@ -82,54 +133,57 @@ ECharts Default Color Palette:
         activeCharts.clear();
     });
 
+    // 饼图
     MnemosyneCharts.renderPlatformPie = function (element, pieData) {
         const chart = resetChartInstance(element);
-        chart.setOption({
-            backgroundColor: 'transparent',
-            tooltip: { 
+        // 获取基类配置
+        const baseOption = getChartsOption();
+        // 添加特有配置
+        const specificOption = {
+            tooltip: {
                 trigger: 'item',
-                backgroundColor: bgColor,
-                borderColor: borderColor,
-                borderWidth: 1,
-                padding: 15,
-                textStyle: {
-                    color: mainTextColor,
-                    fontFamily: fontPrimary,
-                },
                 formatter: '<b>{b}</b><br>¥ {c} ({d}%)'
             },
-            series: [
-                {
-                    type: 'pie',
-                    radius: ['40%', '70%'],
-                    itemStyle: {
-                        borderRadius: 4,
-                        borderColor: borderColor,
-                        borderWidth: 2,
-                        color: function (params) {
-                            return getPlatformColor(params.name);
-                        },
+            series: [{
+                type: 'pie',
+                radius: ['40%', '70%'],
+                itemStyle: {
+                    borderRadius: 4,
+                    borderWidth: 0,
+                    color: function (params) {
+                        return getPlatformColor(params.name);
                     },
-                    label: {
-                        show: true,
-                        fontFamily: fontPrimary,
-                    },
-                    labelLine: {
-                        lineStyle: {
-                            color: mutedTextColor,
-                        },
-                    },
-                    data: pieData,
                 },
-            ],
-        });
+                label: {
+                    show: true,
+                    fontFamily: fontPrimary,
+                },
+                labelLine: {
+                    lineStyle: {
+                        color: mutedTextColor,
+                    },
+                },
+                data: pieData,
+            }]
+        };
+
+        // 合并配置并设置
+        chart.setOption(baseOption);
+        chart.setOption(specificOption);
+
         return chart;
     };
 
+    // 月度堆叠柱状图
     MnemosyneCharts.renderMonthlyStackedBar = function (element, rawData, onMonthSelected) {
+        const chart = resetChartInstance(element);
+        // 获取基类配置
+        const baseOption = getChartsOption();
+
         const months = [...new Set(rawData.map((item) => item.month))].sort();
         const platforms = [...new Set(rawData.map((item) => item.platform))];
 
+        // 构建每个平台的系列数据
         const series = platforms.map((platform) => {
             return {
                 name: platform,
@@ -146,21 +200,11 @@ ECharts Default Color Palette:
             };
         });
 
-        const chart = resetChartInstance(element);
-        chart.setOption({
-            backgroundColor: 'transparent',
-
+        // 添加特有配置
+        const specificOption = {
             tooltip: {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' },
-                backgroundColor: bgColor,
-                borderColor: borderColor,
-                borderWidth: 1,
-                padding: 15,
-                textStyle: {
-                    color: mainTextColor,
-                    fontFamily: fontPrimary,
-                },
                 formatter: function (params) {
                     let html = `<div style="font-weight:bold; font-size:1.1rem; margin-bottom:10px;">${params[0].name}</div>`;
                     let monthTotal = 0;
@@ -231,8 +275,13 @@ ECharts Default Color Palette:
             },
 
             series: series,
-        });
+        };
 
+        // 合并配置并设置
+        chart.setOption(baseOption);
+        chart.setOption(specificOption);
+
+        // 点击事件处理
         const zr = chart.getZr();
         zr.off('click');
         zr.on('click', function (params) {
@@ -258,38 +307,31 @@ ECharts Default Color Palette:
         return chart;
     };
 
-    const fireflyPalette = [
-        '#dcefef', // 极浅绿
-        '#d4ebeb', // 浅薄荷
-        '#8fcaca', // 中薄荷
-        '#4ea5a5', // 深青色
-        '#2d6060'  // 墨绿色
-    ];
-
     MnemosyneCharts.renderFireflyHeatmap = function (element, heatmapData, year) {
         /*  element: DOM 元素
             heatmap: [{<date>, <amount>}, ...]
             year: string
         */
-        const chart = resetChartInstance(element);
-    
-        const option = {
-            backgroundColor: 'transparent',
+        const fireflyPalette = [
+        '#dcefef', // 极浅绿
+        '#d4ebeb', // 浅薄荷
+        '#8fcaca', // 中薄荷
+        '#4ea5a5', // 深青色
+        '#2d6060'  // 墨绿色
+        ];
 
+        const chart = resetChartInstance(element);
+
+        // 获取基类配置
+        const baseOption = getHeatmapBaseOption(year);
+
+        // 添加特有配置
+        const specificOption = {
             tooltip: {
-                backgroundColor: bgColor,
-                borderColor: borderColor,
-                borderWidth: 1,
-                textStyle: {
-                    color: mainTextColor,
-                    fontFamily: fontPrimary,
-                },
                 formatter: (params) => {
-                    return `<b>${params.value[0]}</b><br/>
-                            ¥${params.value[1]}</span>`;
+                    return `<b>${params.value[0]}</b><br/>¥ ${params.value[1]}`;
                 }
             },
-
             visualMap: {
                 type: 'piecewise',
                 min: 0,
@@ -299,48 +341,22 @@ ECharts Default Color Palette:
                 bottom: 20,
                 textStyle: { color: mutedTextColor, fontFamily: fontPrimary },
                 pieces: [
-                    { gt: 0, lte: 50, color: fireflyPalette[1], label: '1-50' },
-                    { gt: 50, lte: 200, color: fireflyPalette[2], label: '51-200' },
-                    { gt: 200, lte: 648, color: fireflyPalette[3], label: '201-648' },
+                    { gt: 0, lte: 68, color: fireflyPalette[1], label: '1-68' },
+                    { gt: 68, lte: 198, color: fireflyPalette[2], label: '69-198' },
+                    { gt: 198, lte: 648, color: fireflyPalette[3], label: '199-648' },
                     { gt: 648, color: fireflyPalette[4], label: '> 648' }
                 ],
                 show: true
             },
-
-            calendar: {
-                top: 40,
-                left: 40,
-                right: 40,
-                cellSize: ['auto', 22],
-                range: year,
-                splitLine: { show: false },
-                itemStyle: {
-                    color: darkBgColor,
-                    borderWidth: 4,
-                    borderColor: bgColor,
-                    borderRadius: 4
-                },
-                yearLabel: { show: false },
-                dayLabel: { 
-                    firstDay: 1, 
-                    nameMap: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-                    color: mutedTextColor,
-                    fontFamily: fontPrimary
-                },
-                monthLabel: { 
-                    color: mainTextColor,
-                    fontFamily: fontPrimary
-                }
-            },
-
-            series: {
+            series: [{
                 type: 'heatmap',
                 coordinateSystem: 'calendar',
-                data: heatmapData,
-            }
+                data: heatmapData
+            }]
         };
 
-        chart.setOption(option);
+        chart.setOption(baseOption);
+        chart.setOption(specificOption);
         return chart;
     };
 
