@@ -150,10 +150,10 @@ namespace Mnemosyne.WPF.Services
         {
             using var connection = new SqliteConnection(_connectionString);
             var sql = @"
-        SELECT strftime('%Y-%m', ExpenseDate) as Month, Platform, CAST(SUM(Amount) AS REAL) as TotalAmount
-        FROM expenses
-        GROUP BY Month, Platform
-        ORDER BY Month ASC";
+                SELECT strftime('%Y-%m', ExpenseDate) as Month, Platform, CAST(SUM(Amount) AS REAL) as TotalAmount
+                FROM expenses
+                GROUP BY Month, Platform
+                ORDER BY Month ASC";
 
             var rows = connection.Query<MonthlyStackedRow>(sql).ToList();
             return new { Data = rows };
@@ -264,6 +264,25 @@ namespace Mnemosyne.WPF.Services
                 ((IDictionary<string, object>)r)["TotalAmount"]
             }).ToList();
 
+            return chartData;
+        }
+
+        public object GetAnnualHeatmap(string year)
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            // 查询指定年份内的所有记录，按天汇总
+            var sql = @"
+                SELECT ExpenseDate, SUM(Amount) as TotalAmount 
+                FROM expenses 
+                WHERE strftime('%Y', ExpenseDate) = @Year 
+                  AND Amount > 0
+                GROUP BY ExpenseDate";
+            var rows = connection.Query(sql, new { Year = year }).ToList();
+            // ECharts 期望的 [[date, value], ...] 格式
+            var chartData = rows.Select(r => new object[] {
+                ((IDictionary<string, object>)r)["ExpenseDate"],
+                ((IDictionary<string, object>)r)["TotalAmount"]
+            }).ToList();
             return chartData;
         }
     }

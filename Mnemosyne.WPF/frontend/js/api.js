@@ -111,6 +111,10 @@ const api = {
 
     async getFireflyHeatmap(year) {
         return await requestWPF('GetFireflyHeatmap', { year });
+    },
+
+    async getAnnualHeatmap(year) {
+        return await requestWPF('GetAnnualHeatmap', { year });
     }
 };
 

@@ -162,7 +162,7 @@ h1 {
     display: grid;
     grid-template-columns: repeat(4, 1fr); /* 4等分 */
     gap: 20px;
-    margin-bottom: 50px;
+    margin-bottom: 20px;
 }
 
 /* 指标卡片的基础样式 */

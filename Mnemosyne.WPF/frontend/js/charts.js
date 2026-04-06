@@ -43,7 +43,6 @@ ECharts Default Color Palette:
                 backgroundColor: bgColor,
                 borderColor: borderColor,
                 borderWidth: 1,
-                padding: 15,
                 textStyle: {
                     color: mainTextColor,
                     fontFamily: fontPrimary,
@@ -79,6 +78,12 @@ ECharts Default Color Palette:
                     borderWidth: 4,
                     borderColor: bgColor,
                     borderRadius: 4
+                },
+                visualMap: {
+                    textStyle: {
+                        color: mutedTextColor,
+                        fontFamily: fontPrimary,
+                    }
                 }
             }
         };
@@ -141,6 +146,7 @@ ECharts Default Color Palette:
         // 添加特有配置
         const specificOption = {
             tooltip: {
+                padding: 15,
                 trigger: 'item',
                 formatter: '<b>{b}</b><br>¥ {c} ({d}%)'
             },
@@ -148,7 +154,6 @@ ECharts Default Color Palette:
                 type: 'pie',
                 radius: ['40%', '70%'],
                 itemStyle: {
-                    borderRadius: 4,
                     borderWidth: 0,
                     color: function (params) {
                         return getPlatformColor(params.name);
@@ -203,6 +208,7 @@ ECharts Default Color Palette:
         // 添加特有配置
         const specificOption = {
             tooltip: {
+                padding: 15,
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' },
                 formatter: function (params) {
@@ -307,6 +313,7 @@ ECharts Default Color Palette:
         return chart;
     };
 
+    // 流萤热力图
     MnemosyneCharts.renderFireflyHeatmap = function (element, heatmapData, year) {
         /*  element: DOM 元素
             heatmap: [{<date>, <amount>}, ...]
@@ -328,25 +335,25 @@ ECharts Default Color Palette:
         // 添加特有配置
         const specificOption = {
             tooltip: {
+                padding: 8,
                 formatter: (params) => {
-                    return `<b>${params.value[0]}</b><br/>¥ ${params.value[1]}`;
+                    return `<span style="font-weight: 500">${params.value[0]}: ¥ ${params.value[1]}</span>`;
                 }
             },
             visualMap: {
                 type: 'piecewise',
                 min: 0,
-                max: 2000,
+                max: 648,
                 orient: 'horizontal',
                 left: 'center',
                 bottom: 20,
-                textStyle: { color: mutedTextColor, fontFamily: fontPrimary },
+                text: ['High', 'Low'],
                 pieces: [
-                    { gt: 0, lte: 68, color: fireflyPalette[1], label: '1-68' },
-                    { gt: 68, lte: 198, color: fireflyPalette[2], label: '69-198' },
-                    { gt: 198, lte: 648, color: fireflyPalette[3], label: '199-648' },
-                    { gt: 648, color: fireflyPalette[4], label: '> 648' }
+                    { gt: 0, lte: 68, color: fireflyPalette[1] },
+                    { gt: 68, lte: 198, color: fireflyPalette[2] },
+                    { gt: 198, lte: 648, color: fireflyPalette[3] },
+                    { gt: 648, color: fireflyPalette[4] }
                 ],
-                show: true
             },
             series: [{
                 type: 'heatmap',
@@ -359,6 +366,48 @@ ECharts Default Color Palette:
         chart.setOption(specificOption);
         return chart;
     };
+
+    // 年度热力图
+    MnemosyneCharts.renderAnnualHeatmap = function (element, heatmapData, year) {
+        const chart = resetChartInstance(element);
+        // 获取基类配置
+        const baseOption = getHeatmapBaseOption(year);
+        // 添加特有配置
+        const specificOption = {
+            tooltip: {
+                padding: 8,
+                formatter: (params) => {
+                    return `<span style="font-weight: 500">${params.value[0]}: ¥ ${params.value[1]}</span>`;
+                }
+            },
+
+            visualMap: {
+                type: 'piecewise',
+                min: 0,
+                max: 2000,
+                orient: 'horizontal',
+                left: 'center',
+                bottom: 20,
+                text: ['High', 'Low'],
+                pieces: [
+                    { gt: 0, lte: 68, color: '#FFB100' },
+                    { gt: 68, lte: 198, color:'#FF8C00'  },
+                    { gt: 198, lte: 648, color: '#F1530E' },
+                    { gt: 648, color: '#E31A1C' }
+                ],
+            },
+
+            series: [{
+                type: 'heatmap',
+                coordinateSystem: 'calendar',
+                data: heatmapData
+            }]
+        }
+
+        chart.setOption(baseOption);
+        chart.setOption(specificOption);
+        return chart;
+    }
 
     global.MnemosyneCharts = MnemosyneCharts;
 

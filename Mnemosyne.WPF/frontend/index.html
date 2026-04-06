@@ -68,7 +68,7 @@
                 </div>
             </div>
 
-            <div class="kpi-card" style="cursor: pointer;"> <!--@click="goToCurrentYearDetail"-->
+            <div class="kpi-card" style="cursor: pointer;" @click="goToCurrentYearDetail">
                 <div class="kpi-title">当年总支出</div>
                 <div class="kpi-subtitle">Annual Expenditure</div>
                 <div class="kpi-value">¥ {{ (kpi.thisYearTotal || 0).toFixed(2) }}</div>
