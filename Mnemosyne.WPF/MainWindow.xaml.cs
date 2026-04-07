@@ -196,7 +196,7 @@ namespace Mnemosyne.WPF
 				ExpenseDate = ParsePayloadDate(payload, "expenseDate"),
 				ItemName = payload.GetProperty("itemName").GetString(),
 				Platform = payload.GetProperty("platform").GetString(),
-				Amount = payload.GetProperty("amount").GetDouble(),
+             Amount = ParsePayloadAmountInCents(payload, "amount"),
 				Tags = payload.GetProperty("tags").GetRawText()
 			};
 
@@ -212,7 +212,7 @@ namespace Mnemosyne.WPF
 				ExpenseDate = ParsePayloadDate(payload, "expenseDate"),
 				ItemName = payload.GetProperty("itemName").GetString(),
 				Platform = payload.GetProperty("platform").GetString(),
-				Amount = payload.GetProperty("amount").GetDouble(),
+             Amount = ParsePayloadAmountInCents(payload, "amount"),
 				Tags = payload.GetProperty("tags").GetRawText()
 			};
 
@@ -225,6 +225,39 @@ namespace Mnemosyne.WPF
 			int id = payload.GetProperty("id").GetInt32();
 			_repo.DeleteExpense(id);
 			return new { Status = "success" };
+		}
+
+		private static long ParsePayloadAmountInCents(JsonElement payload, string propertyName)
+		{
+			if (!payload.TryGetProperty(propertyName, out var amountEl))
+				throw new ArgumentException($"缺少字段: {propertyName}");
+
+			if (amountEl.ValueKind == JsonValueKind.Number)
+			{
+				if (amountEl.TryGetInt64(out var amountInCents))
+				{
+					return amountInCents;
+				}
+
+				var amountInYuan = amountEl.GetDecimal();
+				return (long)Math.Round(amountInYuan * 100m, MidpointRounding.AwayFromZero);
+			}
+
+			if (amountEl.ValueKind == JsonValueKind.String)
+			{
+				var rawText = amountEl.GetString();
+				if (long.TryParse(rawText, out var amountInCents))
+				{
+					return amountInCents;
+				}
+
+				if (decimal.TryParse(rawText, NumberStyles.Number, CultureInfo.InvariantCulture, out var amountInYuan))
+				{
+					return (long)Math.Round(amountInYuan * 100m, MidpointRounding.AwayFromZero);
+				}
+			}
+
+			throw new ArgumentException($"金额格式无效: {propertyName}");
 		}
 	}
 }

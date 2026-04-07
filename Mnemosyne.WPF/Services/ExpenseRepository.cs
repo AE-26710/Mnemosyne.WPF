@@ -13,14 +13,14 @@ namespace Mnemosyne.WPF.Services
         public sealed class PlatformSummaryRow
         {
             public string Platform { get; set; } = string.Empty;
-            public double TotalAmount { get; set; }
+            public long TotalAmount { get; set; }
         }
 
         public sealed class MonthlyStackedRow
         {
             public string Month { get; set; } = string.Empty;
             public string Platform { get; set; } = string.Empty;
-            public double TotalAmount { get; set; }
+            public long TotalAmount { get; set; }
         }
 
         // 数据库连接字符串
@@ -73,7 +73,7 @@ namespace Mnemosyne.WPF.Services
                 }
 
                 // 3. 拼接查询具体数据的 SQL
-                var selectColumns = "SELECT Id, ExpenseDate, Platform, CAST(Amount AS REAL) AS Amount, ItemName, Tags";
+                var selectColumns = "SELECT Id, ExpenseDate, Platform, Amount, ItemName, Tags";
                 var dataSql = $"{selectColumns}{whereClause} ORDER BY ExpenseDate DESC";
 
                 // 如果 pageSize != -1，则追加分页限制；如果是 -1 则原样执行（查全部）
@@ -133,11 +133,11 @@ namespace Mnemosyne.WPF.Services
 
             if (string.IsNullOrEmpty(month))
             {
-                sql = "SELECT Platform, CAST(SUM(Amount) AS REAL) as TotalAmount FROM expenses WHERE Amount > 0 GROUP BY Platform";
+                sql = "SELECT Platform, COALESCE(SUM(Amount), 0) as TotalAmount FROM expenses WHERE Amount > 0 GROUP BY Platform";
             }
             else
             {
-                sql = "SELECT Platform, CAST(SUM(Amount) AS REAL) as TotalAmount FROM expenses WHERE Amount > 0 AND strftime('%Y-%m', ExpenseDate) = @Month GROUP BY Platform";
+                sql = "SELECT Platform, COALESCE(SUM(Amount), 0) as TotalAmount FROM expenses WHERE Amount > 0 AND strftime('%Y-%m', ExpenseDate) = @Month GROUP BY Platform";
                 param = new { Month = month };
             }
 
@@ -150,7 +150,7 @@ namespace Mnemosyne.WPF.Services
         {
             using var connection = new SqliteConnection(_connectionString);
             var sql = @"
-                SELECT strftime('%Y-%m', ExpenseDate) as Month, Platform, CAST(SUM(Amount) AS REAL) as TotalAmount
+                SELECT strftime('%Y-%m', ExpenseDate) as Month, Platform, COALESCE(SUM(Amount), 0) as TotalAmount
                 FROM expenses
                 GROUP BY Month, Platform
                 ORDER BY Month ASC";
@@ -206,25 +206,25 @@ namespace Mnemosyne.WPF.Services
             string lastYear = now.AddYears(-1).ToString("yyyy");
 
             // 辅助方法：执行单一值的 SUM 查询
-            double GetSum(string condition = "", object param = null)
+            long GetSum(string condition = "", object param = null)
             {
                 var sql = $"SELECT SUM(Amount) FROM expenses WHERE Amount > 0 {condition}";
-                return connection.ExecuteScalar<double?>(sql, param) ?? 0.0;
+                return connection.ExecuteScalar<long?>(sql, param) ?? 0L;
             }
 
-            double historicalTotal = GetSum();
-            double thisMonthTotal = GetSum("AND strftime('%Y-%m', ExpenseDate) = @m", new { m = displayMonth });
-            double lastMonthTotal = GetSum("AND strftime('%Y-%m', ExpenseDate) = @m", new { m = lastMonth });
-            double thisYearTotal = GetSum("AND strftime('%Y', ExpenseDate) = @y", new { y = thisYear });
-            double lastYearTotal = GetSum("AND strftime('%Y', ExpenseDate) = @y", new { y = lastYear });
+            long historicalTotal = GetSum();
+            long thisMonthTotal = GetSum("AND strftime('%Y-%m', ExpenseDate) = @m", new { m = displayMonth });
+            long lastMonthTotal = GetSum("AND strftime('%Y-%m', ExpenseDate) = @m", new { m = lastMonth });
+            long thisYearTotal = GetSum("AND strftime('%Y', ExpenseDate) = @y", new { y = thisYear });
+            long lastYearTotal = GetSum("AND strftime('%Y', ExpenseDate) = @y", new { y = lastYear });
 
             // 计算流萤专项支出
-            double fireflyTotal = GetSum("AND (ItemName LIKE '%流萤%' OR EXISTS (SELECT 1 FROM json_each(Tags) WHERE value = '流萤'))");
+            long fireflyTotal = GetSum("AND (ItemName LIKE '%流萤%' OR EXISTS (SELECT 1 FROM json_each(Tags) WHERE value = '流萤'))");
 
             // 计算各种率
-            double momRate = lastMonthTotal > 0 ? (thisMonthTotal - lastMonthTotal) / lastMonthTotal * 100 : 0;
-            double yearYoyRate = lastYearTotal > 0 ? (thisYearTotal - lastYearTotal) / lastYearTotal * 100 : 0;
-            double fireflyPercent = historicalTotal > 0 ? (fireflyTotal / historicalTotal) * 100 : 0;
+            double momRate = lastMonthTotal > 0 ? ((double)(thisMonthTotal - lastMonthTotal) / lastMonthTotal) * 100 : 0;
+            double yearYoyRate = lastYearTotal > 0 ? ((double)(thisYearTotal - lastYearTotal) / lastYearTotal) * 100 : 0;
+            double fireflyPercent = historicalTotal > 0 ? ((double)fireflyTotal / historicalTotal) * 100 : 0;
 
             return new
             {

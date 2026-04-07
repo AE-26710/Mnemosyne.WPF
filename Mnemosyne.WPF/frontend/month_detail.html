@@ -20,8 +20,8 @@
             <div class="kpi-card">
                 <div class="kpi-title">当月总支出</div>
                 <div class="kpi-subtitle">Monthly Expenditure</div>
-                <div class="kpi-value">¥ {{ ( monthlyTotal || 0).toFixed(2) }}</div>
-                <div class="kpi-note">共 {{ records.length }} 笔，日均 ¥ {{ (dailyAvg || 0).toFixed(2) }}</div>
+                <div class="kpi-value">¥ {{ formatCurrency(monthlyTotal) }}</div>
+                <div class="kpi-note">共 {{ records.length }} 笔，日均 ¥ {{ formatCurrency(dailyAvg) }}</div>
             </div>
 
             <div class="kpi-card">
@@ -31,7 +31,7 @@
                     {{ momRate >= 0 ? '+' : '' }}{{ momRate.toFixed(2) }}%
                 </div>
                 <div class="kpi-note">
-                    上月总计：¥ {{ (lastMonthTotal || 0).toFixed(2) }}
+                    上月总计：¥ {{ formatCurrency(lastMonthTotal) }}
                 </div>
             </div>
 
@@ -42,7 +42,7 @@
                     {{ yoyRate >= 0 ? '+' : '' }}{{ yoyRate.toFixed(2) }}%
                 </div>
                 <div class="kpi-note">
-                    去年同月：¥ {{ (lastYearSameMonthTotal || 0).toFixed(2) }}
+                    去年同月：¥ {{ formatCurrency(lastYearSameMonthTotal) }}
                 </div>
             </div>
 
@@ -50,7 +50,7 @@
                 <div class="kpi-title">流萤指数</div>
                 <div class="kpi-subtitle">Firefly Obsession Index</div>
                 <div class="kpi-value">{{ (fireflyIndex || 0).toFixed(2) }}%</div>
-                <div class="kpi-note">总计金额：¥ {{ (fireflyTotal || 0).toFixed(2) }}</div>
+                <div class="kpi-note">总计金额：¥ {{ formatCurrency(fireflyTotal) }}</div>
             </div>
         </div>
 

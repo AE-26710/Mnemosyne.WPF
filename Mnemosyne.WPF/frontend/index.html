@@ -53,7 +53,7 @@
             <div class="kpi-card" style="cursor: pointer;">
                 <div class="kpi-title">历史总支出</div>
                 <div class="kpi-subtitle">Overall Expenditure</div>
-                <div class="kpi-value">¥ {{ (kpi.historicalTotal || 0).toFixed(2) }}</div>
+                <div class="kpi-value">¥ {{ formatCurrency(kpi.historicalTotal) }}</div>
                 <div class="kpi-note">
                     <span>从有记录起至今</span>
                 </div>
@@ -64,17 +64,17 @@
                 <div class="kpi-subtitle">Firefly Obsession Index</div>
                 <div class="kpi-value">{{ kpi.fireflyPercent || 0 }}%</div>
                 <div class="kpi-note">
-                    <span>总计金额: ¥ {{ (kpi.fireflyTotal || 0).toFixed(2) }}</span>
+                    <span>总计金额: ¥ {{ formatCurrency(kpi.fireflyTotal) }}</span>
                 </div>
             </div>
 
             <div class="kpi-card" style="cursor: pointer;" @click="goToCurrentYearDetail">
                 <div class="kpi-title">当年总支出</div>
                 <div class="kpi-subtitle">Annual Expenditure</div>
-                <div class="kpi-value">¥ {{ (kpi.thisYearTotal || 0).toFixed(2) }}</div>
+                <div class="kpi-value">¥ {{ formatCurrency(kpi.thisYearTotal) }}</div>
                 <div class="kpi-note">
                     <span>
-                        去年总计: ¥ {{ (kpi.lastYearTotal || 0).toFixed(2) }}
+                        去年总计: ¥ {{ formatCurrency(kpi.lastYearTotal) }}
                     </span>
                     <span :class="getRateClass(kpi.yearYoyRate)">
                         同比: {{ kpi.yearYoyRate > 0 ? '+' : '' }}{{ kpi.yearYoyRate || 0 }}%
@@ -85,10 +85,10 @@
             <div class="kpi-card" style="cursor: pointer;" @click="goToCurrentMonthDetail">
                 <div class="kpi-title">当月总支出</div>
                 <div class="kpi-subtitle">Monthly Expenditure</div>
-                <div class="kpi-value">¥ {{ (kpi.thisMonthTotal || 0).toFixed(2) }}</div>
+                <div class="kpi-value">¥ {{ formatCurrency(kpi.thisMonthTotal) }}</div>
                 <div class="kpi-note">
                     <span>
-                        上月总计: ¥ {{ (kpi.lastMonthTotal || 0).toFixed(2) }}
+                        上月总计: ¥ {{ formatCurrency(kpi.lastMonthTotal) }}
                     </span>
                     <span :class="getRateClass(kpi.momRate)">
                         环比: {{ kpi.momRate > 0 ? '+' : '' }}{{ kpi.momRate || 0 }}%
@@ -110,11 +110,11 @@
                     <h3><b>{{ selectedMonth.month }} / BREAKDOWN</b></h3>
                     <div v-for="pt in selectedMonth.platforms" :key="pt.name" class="detail-row">
                         <span>{{ pt.name }}</span>
-                        <span style="font-family: 'ITC Avant Garde Std', sans-serif;">¥ {{ pt.value.toFixed(2) }}</span>
+                        <span style="font-family: 'ITC Avant Garde Std', sans-serif;">¥ {{ formatCurrency(pt.value) }}</span>
                     </div>
                     <div class="detail-row">
                         <b><span>TOTAL</span></b>
-                        <b><span style="font-family: 'ITC Avant Garde Std', sans-serif;">¥ {{ selectedMonth.total.toFixed(2) }}</span></b>
+                        <b><span style="font-family: 'ITC Avant Garde Std', sans-serif;">¥ {{ formatCurrency(selectedMonth.total) }}</span></b>
                     </div>
                     <!-- 查看详细数据链接 -->
                     <a :href="'month_detail.html?month=' + selectedMonth.month" class="btn btn-primary" style="display: block; text-align: center; margin-top: 20px; text-decoration: none;">查看该月详细数据 →</a>

@@ -148,7 +148,7 @@ ECharts Default Color Palette:
             tooltip: {
                 padding: 15,
                 trigger: 'item',
-                formatter: '<b>{b}</b><br>¥ {c} ({d}%)'
+                formatter: (params) => `<b>${params.name}</b><br>¥ ${MnemosyneUtils.formatCurrency(params.value)} (${params.percent}%)`
             },
             series: [{
                 type: 'pie',
@@ -223,7 +223,7 @@ ECharts Default Color Palette:
                         html += `
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px; min-width: 180px;">
                                     <span style="font-size:0.9rem;">${p.marker} ${p.seriesName}</span>
-                                    <span>¥ ${p.value.toFixed(2)}</span>
+                                    <span>¥ ${MnemosyneUtils.formatCurrency(p.value)}</span>
                                 </div>`;
                         monthTotal += p.value;
                     });
@@ -231,7 +231,7 @@ ECharts Default Color Palette:
                     html += `
                             <div style="border-top:1px dashed #CCC; margin-top:8px; padding-top:8px; display:flex; justify-content:space-between; font-weight:bold;">
                                 <span>TOTAL</span>
-                                <span>¥ ${monthTotal.toFixed(2)}</span>
+                                <span>¥ ${MnemosyneUtils.formatCurrency(monthTotal)}</span>
                             </div>`;
                     return html;
                 },
@@ -277,7 +277,11 @@ ECharts Default Color Palette:
             yAxis: {
                 type: 'value',
                 splitLine: { lineStyle: { color: borderColor, type: 'dashed' } },
-                axisLabel: { color: mainTextColor, fontFamily: fontPrimary },
+                axisLabel: {
+                    color: mainTextColor,
+                    fontFamily: fontPrimary,
+                    formatter: (value) => (value / 100).toFixed(0),
+                },
             },
 
             series: series,
@@ -337,22 +341,22 @@ ECharts Default Color Palette:
             tooltip: {
                 padding: 8,
                 formatter: (params) => {
-                    return `<span style="font-weight: 500">${params.value[0]}: ¥ ${params.value[1]}</span>`;
+                    return `<span style="font-weight: 500">${params.value[0]}: ¥ ${MnemosyneUtils.formatCurrency(params.value[1])}</span>`;
                 }
             },
             visualMap: {
                 type: 'piecewise',
                 min: 0,
-                max: 648,
+                max: 64800,
                 orient: 'horizontal',
                 left: 'center',
                 bottom: 20,
                 text: ['High', 'Low'],
                 pieces: [
-                    { gt: 0, lte: 68, color: fireflyPalette[1] },
-                    { gt: 68, lte: 198, color: fireflyPalette[2] },
-                    { gt: 198, lte: 648, color: fireflyPalette[3] },
-                    { gt: 648, color: fireflyPalette[4] }
+                    { gt: 0, lte: 6800, color: fireflyPalette[1] },
+                    { gt: 6800, lte: 19800, color: fireflyPalette[2] },
+                    { gt: 19800, lte: 64800, color: fireflyPalette[3] },
+                    { gt: 64800, color: fireflyPalette[4] }
                 ],
             },
             series: [{
@@ -377,23 +381,23 @@ ECharts Default Color Palette:
             tooltip: {
                 padding: 8,
                 formatter: (params) => {
-                    return `<span style="font-weight: 500">${params.value[0]}: ¥ ${params.value[1]}</span>`;
+                    return `<span style="font-weight: 500">${params.value[0]}: ¥ ${MnemosyneUtils.formatCurrency(params.value[1])}</span>`;
                 }
             },
 
             visualMap: {
                 type: 'piecewise',
                 min: 0,
-                max: 2000,
+                max: 200000,
                 orient: 'horizontal',
                 left: 'center',
                 bottom: 20,
                 text: ['High', 'Low'],
                 pieces: [
-                    { gt: 0, lte: 68, color: '#FFB100' },
-                    { gt: 68, lte: 198, color:'#FF8C00'  },
-                    { gt: 198, lte: 648, color: '#F1530E' },
-                    { gt: 648, color: '#E31A1C' }
+                    { gt: 0, lte: 6800, color: '#FFB100' },
+                    { gt: 6800, lte: 19800, color:'#FF8C00'  },
+                    { gt: 19800, lte: 64800, color: '#F1530E' },
+                    { gt: 64800, color: '#E31A1C' }
                 ],
             },
 

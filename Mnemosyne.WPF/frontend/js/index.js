@@ -3,7 +3,7 @@
     // 从刚才提取的 utils 中解构需要的工具函数
     // 类似于C++的 using MnemosyneUtils::formatCurrency;
     // 这样就可以直接使用 formatCurrency() 而不是 MnemosyneUtils.formatCurrency()
-    const { formatCurrency, getRateClass, toPieData } = MnemosyneUtils;
+    const { formatCurrency, getRateClass, toPieData, yuanToCents, centsToYuan } = MnemosyneUtils;
     
     const PLATFORM_OPTIONS = ['Steam', '崩坏：星穹铁道', '崩坏3', '战争雷霆'];
 
@@ -195,7 +195,7 @@
                 formData.value = {
                     itemName: item.itemName,
                     platform: item.platform,
-                    amount: item.amount,
+                    amount: centsToYuan(item.amount).toFixed(2),
                     tagsInput: item.tagsList ? item.tagsList.join(',') : '',
                 };
 
@@ -246,7 +246,7 @@
                     expenseDate: finalDate,
                     itemName: formData.value.itemName,
                     platform: formData.value.platform,
-                    amount: parseFloat(formData.value.amount),
+                    amount: yuanToCents(formData.value.amount),
                     tags: formData.value.tagsInput
                         ? formData.value.tagsInput
                                 .split(',')
@@ -254,6 +254,11 @@
                                 .filter((t) => t)
                         : [],
                 };
+
+                if (!Number.isFinite(payload.amount)) {
+                    alert('请输入有效金额！');
+                    return;
+                }
 
                 try {
                     if (isEditing.value) {

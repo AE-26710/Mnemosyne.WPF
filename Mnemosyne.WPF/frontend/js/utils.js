@@ -1,10 +1,21 @@
 (function (global) {
     const utils = {};
 
+    utils.yuanToCents = (value) => {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return Number.NaN;
+        return Math.round(num * 100);
+    };
+
+    utils.centsToYuan = (value) => {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return 0;
+        return num / 100;
+    };
+
     // 格式化金额
     utils.formatCurrency = (value) => {
-        const num = Number(value);
-        return Number.isFinite(num) ? num.toFixed(2) : '0.00';
+        return utils.centsToYuan(value).toFixed(2);
     };
 
     // 格式化日期
@@ -67,7 +78,7 @@
 
     utils.sumAmounts = (records) => {
         if (!Array.isArray(records)) return 0;
-        return records.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+        return records.reduce((sum, item) => sum + Math.round(Number(item.amount) || 0), 0);
     };
 
     utils.filterByTag = (records, tagName) => {

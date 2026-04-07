@@ -13,7 +13,7 @@ namespace Mnemosyne.WPF.Models
         public int Id { get; set; }
         public DateOnly ExpenseDate { get; set; }
         public required string Platform { get; set; }
-        public double Amount { get; set; }
+        public long Amount { get; set; }
         public required string ItemName { get; set; }
         public string? Tags { get; set; }
         public List<string> TagsList
