@@ -245,26 +245,21 @@ namespace Mnemosyne.WPF.Services
                 // (同比 yoy_rate 等可以按同样的逻辑补充)
             };
         }
-        public object GetFireflyAnnualHeatmap(string year)
+
+        public List<Expense> GetAllFireflyExpenses()
         {
             using var connection = new SqliteConnection(_connectionString);
-            // 查询指定年份内，包含“流萤”关键词或标签的记录，按天汇总
             var sql = @"
-                SELECT ExpenseDate, SUM(Amount) as TotalAmount 
-                FROM expenses 
-                WHERE strftime('%Y', ExpenseDate) = @Year 
-                  AND EXISTS (SELECT 1 FROM json_each(Tags) WHERE value = '流萤')
-                GROUP BY ExpenseDate";
+                SELECT Id, ExpenseDate, Platform, Amount, ItemName, Tags
+                FROM expenses
+                WHERE Amount > 0
+                  AND (
+                    ItemName LIKE '%流萤%'
+                    OR EXISTS (SELECT 1 FROM json_each(Tags) WHERE value = '流萤')
+                  )
+                ORDER BY ExpenseDate DESC, Id DESC";
 
-            var rows = connection.Query(sql, new { Year = year }).ToList();
-
-            // ECharts 期望的 [[date, value], ...] 格式
-            var chartData = rows.Select(r => new object[] {
-                ((IDictionary<string, object>)r)["ExpenseDate"],
-                ((IDictionary<string, object>)r)["TotalAmount"]
-            }).ToList();
-
-            return chartData;
+            return connection.Query<Expense>(sql).ToList();
         }
 
         public object GetAnnualHeatmap(string year)

@@ -95,6 +95,9 @@
     --color-text-muted: #7A7A7A;
     --color-border: #E2DCD0;
     --color-firefly: #8FCACA;
+
+    --color-error: #BA1A1A;
+
     --fs-xs: 0.75rem;
     --fs-sm: 0.875rem;
     --fs-md: 1rem;

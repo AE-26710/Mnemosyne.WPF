@@ -108,9 +108,8 @@ namespace Mnemosyne.WPF
 						string sql = request.Payload.TryGetProperty("query", out var q) ? q.GetString() : "";
 						response.Data = _repo.RunReadOnlySql(sql);
 						break;
-					case "GetFireflyHeatmap":
-						string year = request.Payload.TryGetProperty("year", out var yr) ? yr.ToString() : DateTime.Now.Year.ToString();
-						response.Data = _repo.GetFireflyAnnualHeatmap(year);
+                    case "GetAllFireflyExpenses":
+						response.Data = _repo.GetAllFireflyExpenses();
 						break;
 					case "GetAnnualHeatmap":
                         string aYear = request.Payload.TryGetProperty("year", out var ay) ? ay.ToString() : DateTime.Now.Year.ToString();

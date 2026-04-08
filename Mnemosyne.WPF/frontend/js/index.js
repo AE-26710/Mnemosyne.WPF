@@ -195,7 +195,8 @@
                 formData.value = {
                     itemName: item.itemName,
                     platform: item.platform,
-                    amount: centsToYuan(item.amount).toFixed(2),
+                    //amount: centsToYuan(item.amount).toFixed(2),
+                    amount: formatCurrency(item.amount),
                     tagsInput: item.tagsList ? item.tagsList.join(',') : '',
                 };
 

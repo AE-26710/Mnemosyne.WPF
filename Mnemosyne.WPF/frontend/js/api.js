@@ -109,8 +109,8 @@ const api = {
         return await requestWPF('RunSQL', { query });
     },
 
-    async getFireflyHeatmap(year) {
-        return await requestWPF('GetFireflyHeatmap', { year });
+    async getAllFireflyExpenses() {
+        return await requestWPF('GetAllFireflyExpenses');
     },
 
     async getAnnualHeatmap(year) {

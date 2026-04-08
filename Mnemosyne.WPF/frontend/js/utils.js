@@ -1,19 +1,21 @@
 (function (global) {
     const utils = {};
 
+    // 元转换为整数分
     utils.yuanToCents = (value) => {
         const num = Number(value);
         if (!Number.isFinite(num)) return Number.NaN;
         return Math.round(num * 100);
     };
 
+    // 整数分转换为元
     utils.centsToYuan = (value) => {
         const num = Number(value);
         if (!Number.isFinite(num)) return 0;
         return num / 100;
     };
 
-    // 格式化金额
+    // 格式化金额，UI展示时使用
     utils.formatCurrency = (value) => {
         return utils.centsToYuan(value).toFixed(2);
     };

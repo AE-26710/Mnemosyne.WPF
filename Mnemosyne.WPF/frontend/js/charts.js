@@ -13,6 +13,8 @@ ECharts Default Color Palette:
 #67727e	深灰蓝（备用）
 */
 
+const { formatCurrency } = MnemosyneUtils;
+
 (function(global) {
     const MnemosyneCharts = {};
     const resizeObservers = new WeakMap();
@@ -148,7 +150,7 @@ ECharts Default Color Palette:
             tooltip: {
                 padding: 15,
                 trigger: 'item',
-                formatter: (params) => `<b>${params.name}</b><br>¥ ${MnemosyneUtils.formatCurrency(params.value)} (${params.percent}%)`
+                formatter: (params) => `<b>${params.name}</b><br>¥ ${formatCurrency(params.value)} (${params.percent}%)`
             },
             series: [{
                 type: 'pie',
@@ -223,7 +225,7 @@ ECharts Default Color Palette:
                         html += `
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px; min-width: 180px;">
                                     <span style="font-size:0.9rem;">${p.marker} ${p.seriesName}</span>
-                                    <span>¥ ${MnemosyneUtils.formatCurrency(p.value)}</span>
+                                    <span>¥ ${formatCurrency(p.value)}</span>
                                 </div>`;
                         monthTotal += p.value;
                     });
@@ -231,7 +233,7 @@ ECharts Default Color Palette:
                     html += `
                             <div style="border-top:1px dashed #CCC; margin-top:8px; padding-top:8px; display:flex; justify-content:space-between; font-weight:bold;">
                                 <span>TOTAL</span>
-                                <span>¥ ${MnemosyneUtils.formatCurrency(monthTotal)}</span>
+                                <span>¥ ${formatCurrency(monthTotal)}</span>
                             </div>`;
                     return html;
                 },
@@ -341,7 +343,7 @@ ECharts Default Color Palette:
             tooltip: {
                 padding: 8,
                 formatter: (params) => {
-                    return `<span style="font-weight: 500">${params.value[0]}: ¥ ${MnemosyneUtils.formatCurrency(params.value[1])}</span>`;
+                    return `<span style="font-weight: 500">${params.value[0]}: ¥ ${formatCurrency(params.value[1])}</span>`;
                 }
             },
             visualMap: {
@@ -381,7 +383,7 @@ ECharts Default Color Palette:
             tooltip: {
                 padding: 8,
                 formatter: (params) => {
-                    return `<span style="font-weight: 500">${params.value[0]}: ¥ ${MnemosyneUtils.formatCurrency(params.value[1])}</span>`;
+                    return `<span style="font-weight: 500">${params.value[0]}: ¥ ${formatCurrency(params.value[1])}</span>`;
                 }
             },
 
