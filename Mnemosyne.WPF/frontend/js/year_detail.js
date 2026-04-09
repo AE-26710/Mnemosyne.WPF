@@ -2,6 +2,9 @@
     const { createApp, ref, onMounted } = Vue;
 
     createApp({
+        components: {
+            'date-filter': MnemosyneComponents.DateFilter
+        },
         setup() {
             const currentYear = new Date().getFullYear();
             const startYear = 2022;

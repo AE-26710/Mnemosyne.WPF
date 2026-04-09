@@ -2,11 +2,14 @@
     const { createApp, ref, onMounted } = Vue;
 
     createApp({
+        components: {
+            'date-filter': MnemosyneComponents.DateFilter
+        },
         setup() {
             const currentYear = new Date().getFullYear();
             const availableYears = ref([currentYear]);
             const selectedYear = ref(currentYear);
-            const allFireflyExpenses = ref([]);
+            const fireflyExpenses = ref([]);
 
             const heatmapRef = ref(null);
 
@@ -19,7 +22,7 @@
                 const prefix = `${year}-`;
                 const aggregated = new Map();
 
-                allFireflyExpenses.value.forEach((entry) => {
+                fireflyExpenses.value.forEach((entry) => {
                     const date = normalizeDate(entry.expenseDate);
                     if (!date.startsWith(prefix)) return;
 
@@ -35,7 +38,6 @@
                 try {
                     const data = buildHeatmapDataByYear(selectedYear.value);
                     
-                    // 调用 charts.js 里的渲染函数
                     if (heatmapRef.value) {
                         MnemosyneCharts.renderFireflyHeatmap(heatmapRef.value, data, selectedYear.value);
                     }
@@ -47,10 +49,10 @@
             const loadAllFireflyExpenses = async () => {
                 try {
                     const rawEntries = await api.getAllFireflyExpenses();
-                    allFireflyExpenses.value = Array.isArray(rawEntries) ? rawEntries : [];
+                    fireflyExpenses.value = Array.isArray(rawEntries) ? rawEntries : [];
 
                     const years = [...new Set(
-                        allFireflyExpenses.value
+                        fireflyExpenses.value
                             .map((entry) => normalizeDate(entry.expenseDate).slice(0, 4))
                             .filter((year) => /^\d{4}$/.test(year))
                             .map((year) => Number(year))
