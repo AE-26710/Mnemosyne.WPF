@@ -14,6 +14,13 @@
       <div style="font-size: var(--fs-xl); font-weight: 500;">{{ currentMonth }} Overview</div>
     </header>
 
+    <date-filter :years="availableYears"
+                 v-model:year="selectedYear"
+                 v-model:month="selectedMonth"
+                 :show-month="true"
+                 @change="fetchData">
+    </date-filter>
+
     <div class="kpi-grid">
       <div class="kpi-card">
         <div class="kpi-title">当月总支出</div>
@@ -90,6 +97,7 @@
   <script src="./js/utils.js"></script>
   <script src="./js/api.js"></script>
   <script src="./js/charts.js"></script>
+  <script src="./js/components.js"></script>
   <script src="./js/month_detail.js"></script>
 </body>
 </html>

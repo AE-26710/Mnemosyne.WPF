@@ -168,7 +168,7 @@ h1 {
 /* 指标卡片的基础样式 */
 .kpi-card {
     border: 1px solid var(--color-border);
-    padding: 25px 20px; /* 稍微调整内边距适应更紧凑的卡片 */
+    padding: 20px 20px; /* 稍微调整内边距适应更紧凑的卡片 */
     background-color: transparent;
     transition: background-color 0.3s ease; /* 增加Hover过渡动画 */
 }
@@ -191,7 +191,6 @@ h1 {
     margin-bottom: 15px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-family: var(--font-primary);
 }
 
 /* 指标数值样式 */
@@ -225,8 +224,8 @@ h1 {
 
 /* 支出明细数据表区域 */
 .records-section {
-    margin-top: 60px;
-    padding-top: 40px;
+    margin-top: 20px;
+    padding-top: 20px;
     border-top: 1px solid var(--color-border);
 }
 
@@ -242,7 +241,6 @@ h1 {
         margin-left: 10px;
         font-size: var(--fs-sm);
         color: var(--color-text-muted);
-        font-family: var(--font-primary);
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
@@ -306,7 +304,6 @@ h1 {
     flex: 0 0 102px;
     font-size: var(--fs-sm);
     color: var(--color-text-muted);
-    font-family: var(--font-primary);
 }
 
 .receipt-item-main {
@@ -327,7 +324,6 @@ h1 {
 
 .receipt-item-amount {
     white-space: nowrap;
-    font-family: var(--font-primary);
 }
 
 /* 收据小计样式 */
@@ -349,7 +345,6 @@ h1 {
     justify-content: space-between;
     font-size: var(--fs-lg);
     border-top: 2px solid var(--color-text-main);
-    font-family: var(--font-primary);
 }
 
 /* 分页控件 */
@@ -360,7 +355,6 @@ h1 {
     align-items: center;
     gap: 20px;
     margin-top: 30px;
-    font-family: var(--font-primary);
 }
 
 /* 当前页信息 */

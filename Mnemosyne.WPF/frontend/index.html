@@ -18,7 +18,8 @@
     .chart-container {
       height: 400px;
       border: 1px solid var(--color-border);
-      padding: 20px;
+      padding-left: 20px;
+      padding-right: 20px;
     }
 
     .data-table td,
@@ -97,13 +98,13 @@
     </div>
 
     <div class="charts-wrapper">
-      <div>
+      <div class="chart-container">
         <h2 class="section-title">平台分布占比</h2>
-        <div id="pieChart" class="chart-container" style="height: 320px"></div>
+        <div id="pieChart" style="height: 320px"></div>
       </div>
-      <div>
+      <div class="chart-container">
         <h2 class="section-title">月度趋势与平台构成</h2>
-        <div id="barChart" class="chart-container" style="height: 320px;"></div>
+        <div id="barChart" style="height: 320px"></div>
       </div>
     </div>
 

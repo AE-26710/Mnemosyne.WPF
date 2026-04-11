@@ -8,7 +8,16 @@
     } = MnemosyneUtils;
 
     createApp({
+        components: {
+            'date-filter': MnemosyneComponents.DateFilter
+        },
         setup() {
+            const currentYear = new Date().getFullYear();
+            const startYear = 2022;
+            const availableYears = ref(Array.from({ length: currentYear - startYear + 1 }, (_, i) => currentYear - i));
+            const selectedYear = ref(new Date().getFullYear());
+            const selectedMonth = ref(new Date().getMonth() + 1);
+
             const currentMonth = ref('');
             const totalAmount = ref(0);
             const records = ref([]);
@@ -98,10 +107,6 @@
                     records.value = currentJson.data || [];
                     lastMonthTotal.value = sumAmounts(prevJson.data || []);
                     lastYearSameMonthTotal.value = sumAmounts(lastYearJson.data || []);
-
-                    if (currentMonth.value && currentMonth.value !== '-') {
-                        initHeatmapChart(currentMonth.value, records.value);
-                    }
                 } catch (error) {
                     console.error('Failed to fetch records:', error);
                 }
@@ -116,6 +121,9 @@
             });
 
             return {
+                availableYears,
+                selectedYear,
+                selectedMonth,
                 daysInCurrentMonth,
                 currentMonth,
                 totalAmount,
