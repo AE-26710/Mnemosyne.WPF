@@ -99,25 +99,11 @@
     <div class="charts-wrapper">
       <div>
         <h2 class="section-title">平台分布占比</h2>
-        <div id="pieChart" class="chart-container"></div>
+        <div id="pieChart" class="chart-container" style="height: 320px"></div>
       </div>
       <div>
         <h2 class="section-title">月度趋势与平台构成</h2>
         <div id="barChart" class="chart-container" style="height: 320px;"></div>
-
-        <div v-if="selectedMonth" class="month-detail-panel">
-          <h3><b>{{ selectedMonth.month }} / BREAKDOWN</b></h3>
-          <div v-for="pt in selectedMonth.platforms" :key="pt.name" class="detail-row">
-            <span>{{ pt.name }}</span>
-            <span style="font-family: 'ITC Avant Garde Std', sans-serif;">¥ {{ formatCurrency(pt.value) }}</span>
-          </div>
-          <div class="detail-row">
-            <b><span>TOTAL</span></b>
-            <b><span style="font-family: 'ITC Avant Garde Std', sans-serif;">¥ {{ formatCurrency(selectedMonth.total) }}</span></b>
-          </div>
-          <!-- 查看详细数据链接 -->
-          <a :href="'month_detail.html?month=' + selectedMonth.month" class="btn btn-primary" style="display: block; text-align: center; margin-top: 20px; text-decoration: none;">查看该月详细数据 →</a>
-        </div>
       </div>
     </div>
 

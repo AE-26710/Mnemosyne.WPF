@@ -120,6 +120,7 @@ body {
     margin: 0;
     padding: 0 20px 80px;
     -webkit-font-smoothing: antialiased;
+    min-width: 1200px;
 }
 
 /* 容器样式：设置页面内容的最大宽度和居中对齐 */
@@ -175,6 +176,7 @@ h1 {
     .kpi-card:hover {
         background-color: #EBE6DE;
     }
+
 /* 指标标题样式 */
 .kpi-title {
     font-size: var(--fs-lg);
@@ -260,7 +262,6 @@ h1 {
     .data-table th {
         font-weight: normal;
         color: var(--color-text-muted);
-        font-size: var(--fs-xs);
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
@@ -368,33 +369,6 @@ h1 {
     letter-spacing: 0.05em;
 }
 
-/* 月度详情悬浮面板 */
-.month-detail-panel {
-    margin-top: 15px;
-    padding: 15px 20px;
-    border: 1px solid var(--color-border);
-    font-size: var(--fs-md);
-}
-
-    .month-detail-panel h3 {
-        margin: 0 0 10px 0;
-        font-size: var(--fs-lg);
-        font-family: var(--font-primary);
-    }
-
-.detail-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-    border-bottom: 1px dashed var(--color-border);
-}
-
-    .detail-row:last-child {
-        border-bottom: none;
-        font-weight: bold;
-        padding-top: 10px;
-    }
-
 /* 弹窗遮罩 */
 .modal-overlay {
     position: fixed;
@@ -476,7 +450,8 @@ h1 {
     font-weight: 300;
 }
 
-/* 基础按钮：统一风格 (类似原翻页按钮) */
+/* 基础按钮样式 */
+/* 基础按钮样式 */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -488,7 +463,6 @@ h1 {
     letter-spacing: 0.1em;
     cursor: pointer;
     border: 1px solid transparent;
-    border-radius: 0; /* 直角复古风格 */
     background: transparent;
     transition: all 0.2s ease;
     white-space: nowrap;
@@ -498,7 +472,7 @@ h1 {
         cursor: not-allowed;
     }
 
-/* --- 变体：主按钮 / 分页按钮 (Primary/Pagination) --- */
+/* 变体：分页按钮 */
 .btn-primary,
 .btn-pagination {
     border-color: var(--color-text-main);
@@ -559,12 +533,6 @@ h1 {
         background-color: var(--color-bg-dark);
         border-color: var(--color-text-muted);
     }
-
-    /* Focus 
-    .custom-select:focus {
-        border-color: var(--color-firefly);
-        box-shadow: 0 0 0 3px rgba(143, 202, 202, 0.2);
-    } */
 
     /* Disabled */
     .custom-select:disabled {

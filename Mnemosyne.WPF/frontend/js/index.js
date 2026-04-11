@@ -22,8 +22,11 @@
                 fireflyPercent: 0,
             });
 
+            /**
+             * 拉取并刷新仪表盘 KPI 数据。
+             * @returns {Promise<void>}
+             */
             const fetchKPI = async () => {
-                // 获取 KPI 指标数据并填充仪表盘
                 try {
                     kpi.value = await api.getKPI();
                 } catch (error) {
@@ -31,8 +34,11 @@
                 }
             };
 
+            /**
+             * 初始化平台分布饼图。
+             * @returns {Promise<void>}
+             */
             const initPieChart = async () => {
-                // 初始化平台分布饼图
                 try {
                     const json = await api.getPlatforms();
                     const pieData = toPieData(json.data);
@@ -49,8 +55,12 @@
             const currentPage = ref(1);
             const totalPages = ref(1);
 
+            /**
+             * 分页加载消费记录。
+             * @param {number} [page=1] 目标页码。
+             * @returns {Promise<void>}
+             */
             const fetchRecords = async (page = 1) => {
-                // 分页获取消费记录
                 try {
                     const json = await api.getExpenses(page, 10);
                     records.value = json.data;
@@ -61,6 +71,11 @@
                 }
             };
 
+            /**
+             * 切换分页到指定页。
+             * @param {number} newPage 目标页码。
+             * @returns {void}
+             */
             const changePage = (newPage) => {
                 // 翻页
                 if (newPage >= 1 && newPage <= totalPages.value) {
@@ -68,19 +83,18 @@
                 }
             };
 
-            const selectedMonth = ref(null);
-
+            /**
+             * 初始化月度堆叠柱状图。
+             * @returns {Promise<void>}
+             */
             const initBarChart = async () => {
-                // 初始化月度堆叠柱状图
                 try {
                     const json = await api.getMonthlyStacked();
                     const rawData = json.data;
                     const el = document.getElementById('barChart');
                     if (!el) return;
 
-                    MnemosyneCharts.renderMonthlyStackedBar(el, rawData, (monthInfo) => {
-                        selectedMonth.value = monthInfo;
-                    });
+                    MnemosyneCharts.renderMonthlyStackedBar(el, rawData);
                 } catch (error) {
                     console.error('Failed to initialize bar chart:', error);
                 }
@@ -102,8 +116,12 @@
             const sqlError = ref('');
             const sqlSuccessMessage = ref('');
 
+            /**
+             * 监听全局按键，匹配密钥后打开 SQL 彩蛋弹窗。
+             * @param {KeyboardEvent} e 键盘事件。
+             * @returns {void}
+             */
             const handleGlobalKeydown = (e) => {
-                // 监听全局按键触发 SQL 彩蛋
                 if (e.key.length === 1 || e.key === '=') {
                     currentSequence += e.key;
                     if (currentSequence.length > secretSequence.length) {
@@ -119,13 +137,19 @@
                 }
             };
 
+            /**
+             * 关闭 SQL 弹窗。
+             * @returns {void}
+             */
             const closeSqlModal = () => {
-                // 关闭 SQL 弹窗
                 showSqlModal.value = false;
             };
 
+            /**
+             * 执行 SQL 语句并更新结果展示区域。
+             * @returns {Promise<void>}
+             */
             const executeSql = async () => {
-                // 执行 SQL 并渲染结果表格
                 sqlError.value = '';
                 sqlSuccessMessage.value = '';
                 sqlResult.value = null;
@@ -154,8 +178,11 @@
             const formDate = ref({ year: '', month: '', day: '' });
             const formData = ref({ itemName: '', platform: '', amount: '', tagsInput: '' });
 
+            /**
+             * 打开新增记录表单，并预填当前日期。
+             * @returns {void}
+             */
             const openForm = () => {
-                // 打开新增表单并预填今天日期
                 isEditing.value = false;
                 editingId.value = null;
 
@@ -176,8 +203,12 @@
                 showModal.value = true;
             };
 
+            /**
+             * 打开编辑表单并回填记录数据。
+             * @param {{ id: number, expenseDate?: string, itemName: string, platform: string, amount: number, tagsList?: string[] }} item 记录项。
+             * @returns {void}
+             */
             const editItem = (item) => {
-                // 打开编辑表单并填充选中记录
                 isEditing.value = true;
                 editingId.value = item.id;
 
@@ -195,7 +226,6 @@
                 formData.value = {
                     itemName: item.itemName,
                     platform: item.platform,
-                    //amount: centsToYuan(item.amount).toFixed(2),
                     amount: formatCurrency(item.amount),
                     tagsInput: item.tagsList ? item.tagsList.join(',') : '',
                 };
@@ -204,8 +234,11 @@
                 showModal.value = true;
             };
 
+            /**
+             * 处理平台下拉框变更，支持自定义平台输入。
+             * @returns {void}
+             */
             const onPlatformChange = () => {
-                // 平台选择变化时处理自定义输入
                 if (selectedPlatform.value === '__custom__') {
                     if (PLATFORM_OPTIONS.includes(formData.value.platform)) {
                         formData.value.platform = '';
@@ -215,13 +248,19 @@
                 }
             };
 
+            /**
+             * 关闭新增/编辑表单。
+             * @returns {void}
+             */
             const closeForm = () => {
-                // 关闭表单
                 showModal.value = false;
             };
 
+            /**
+             * 校验表单并提交新增或更新请求。
+             * @returns {Promise<void>}
+             */
             const submitForm = async () => {
-                // 校验并提交表单，新增或更新记录
                 const strY = formDate.value.year;
                 const strM = formDate.value.month;
                 const strD = formDate.value.day;
@@ -274,20 +313,30 @@
                 }
             };
 
+            /**
+             * 进入删除确认状态。
+             * @param {number} id 目标记录 ID。
+             * @returns {Promise<void>}
+             */
             const deleteItem = async (id) => {
-                // 弹出删除确认框
                 pendingDeleteId.value = id;
                 showDeleteConfirm.value = true;
             };
 
+            /**
+             * 关闭删除确认弹窗。
+             * @returns {void}
+             */
             const closeDeleteConfirm = () => {
-                // 关闭删除确认
                 showDeleteConfirm.value = false;
                 pendingDeleteId.value = null;
             };
 
+            /**
+             * 确认删除选中的记录。
+             * @returns {Promise<void>}
+             */
             const confirmDelete = async () => {
-                // 确认删除记录
                 if (pendingDeleteId.value == null) return;
                 try {
                     await api.deleteExpense(pendingDeleteId.value);
@@ -298,29 +347,41 @@
                 }
             };
 
+            /**
+             * 跳转到当前月份的明细页。
+             * @returns {void}
+             */
             const goToCurrentMonthDetail = () => {
-                // 跳转到当前月份明细页
                 const monthStr = kpi.value.serverTime?.displayMonth;
                 if (monthStr) {
                     window.location.href = `month_detail.html?month=${monthStr}`;
                 }
             };
 
+            /**
+             * 跳转到当前年份的明细页。
+             * @returns {void}
+             */
             const goToCurrentYearDetail = () => {
-                // 跳转到当前年份明细页
                 const yearStr = kpi.value.serverTime?.displayYear;
                 if (yearStr) {
                     window.location.href = `year_detail.html?year=${yearStr}`;
                 }
             };
 
+            /**
+             * 跳转到流萤明细页。
+             * @returns {void}
+             */
             const goToFireflyDetail = () => {
-                // 跳转到流萤明细页
                 window.location.href = 'firefly_detail.html';
             };
 
+            /**
+             * 刷新仪表盘全部数据，包括 KPI、图表和列表。
+             * @returns {void}
+             */
             const refreshAllData = () => {
-                // 刷新全部数据和图表
                 fetchKPI();
                 initPieChart();
                 initBarChart();
@@ -343,7 +404,6 @@
                 changePage,
                 getRateClass,
                 formatCurrency,
-                selectedMonth,
                 showModal,
                 isEditing,
                 editingId,
