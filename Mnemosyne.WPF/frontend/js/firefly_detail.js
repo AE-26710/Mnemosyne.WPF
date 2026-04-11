@@ -1,5 +1,5 @@
 (function () {
-    const { createApp, ref, onMounted } = Vue;
+    const { createApp, ref, onMounted, computed } = Vue;
 
     createApp({
         components: {
@@ -9,75 +9,85 @@
             const currentYear = new Date().getFullYear();
             const availableYears = ref([currentYear]);
             const selectedYear = ref(currentYear);
-            const fireflyExpenses = ref([]);
+            const selectedDate = ref(null);
+
+            const heatmapByYear = ref({});
+            const detailsByDate = ref({});
+            const monthlyShare = ref([]);
 
             const heatmapRef = ref(null);
+            const shareBarRef = ref(null);
 
-            const normalizeDate = (expenseDate) => {
-                if (!expenseDate) return '';
-                return String(expenseDate).slice(0, 10);
+            const dailyDetails = computed(() => {
+                if (!selectedDate.value) return [];
+                return detailsByDate.value[selectedDate.value] || [];
+            });
+
+            const handleDateClick = (date) => {
+                selectedDate.value = date;
             };
 
-            const buildHeatmapDataByYear = (year) => {
-                const prefix = `${year}-`;
-                const aggregated = new Map();
-
-                fireflyExpenses.value.forEach((entry) => {
-                    const date = normalizeDate(entry.expenseDate);
-                    if (!date.startsWith(prefix)) return;
-
-                    const amount = Number(entry.amount) || 0;
-                    aggregated.set(date, (aggregated.get(date) || 0) + amount);
-                });
-
-                return Array.from(aggregated.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-            };
-
-            // 核心渲染逻辑
             const updateHeatMap = () => {
                 try {
-                    const data = buildHeatmapDataByYear(selectedYear.value);
-                    
+                    const data = heatmapByYear.value[selectedYear.value] || [];
+                    selectedDate.value = null;
+
                     if (heatmapRef.value) {
-                        MnemosyneCharts.renderFireflyHeatmap(heatmapRef.value, data, selectedYear.value);
+                        const chart = MnemosyneCharts.renderFireflyHeatmap(heatmapRef.value, data, selectedYear.value);
+                        chart.on('click', (params) => {
+                            if (params.data) {
+                                handleDateClick(params.data[0]);
+                            }
+                        });
                     }
                 } catch (err) {
-                    console.error("加载流萤热力图失败:", err);
+                    console.error('加载流萤热力图失败:', err);
                 }
             };
 
-            const loadAllFireflyExpenses = async () => {
+            const updateShareChart = () => {
                 try {
-                    const rawEntries = await api.getAllFireflyExpenses();
-                    fireflyExpenses.value = Array.isArray(rawEntries) ? rawEntries : [];
+                    if (!shareBarRef.value) return;
+                    MnemosyneCharts.renderFireflySharePercentStackedBar(shareBarRef.value, monthlyShare.value, 48);
+                } catch (err) {
+                    console.error('加载流萤月度占比图失败:', err);
+                }
+            };
 
-                    const years = [...new Set(
-                        fireflyExpenses.value
-                            .map((entry) => normalizeDate(entry.expenseDate).slice(0, 4))
-                            .filter((year) => /^\d{4}$/.test(year))
-                            .map((year) => Number(year))
-                    )].sort((a, b) => b - a);
+            const loadFireflyOverview = async () => {
+                try {
+                    const overview = await api.getFireflyOverview();
 
+                    heatmapByYear.value = overview.heatmapByYear || {};
+                    detailsByDate.value = overview.detailsByDate || {};
+                    monthlyShare.value = Array.isArray(overview.monthlyShare) ? overview.monthlyShare : [];
+
+                    const years = Array.isArray(overview.years) ? overview.years : [];
                     if (years.length > 0) {
                         availableYears.value = years;
                         selectedYear.value = years[0];
                     }
 
                     updateHeatMap();
+                    updateShareChart();
                 } catch (err) {
-                    console.error("加载流萤条目失败:", err);
+                    console.error('加载流萤概览失败:', err);
                 }
             };
 
             onMounted(() => {
-                loadAllFireflyExpenses();
+                loadFireflyOverview();
             });
 
             return {
+                formatCurrency,
                 availableYears,
                 selectedYear,
-                heatmapRef, // 必须返回，Vue 才能绑定到 HTML
-                fetchData: updateHeatMap // 供 HTML 里的 @change 调用
+                selectedDate,
+                dailyDetails,
+                heatmapRef,
+                shareBarRef,
+                fetchData: updateHeatMap
             };
         }
     }).mount('#app');

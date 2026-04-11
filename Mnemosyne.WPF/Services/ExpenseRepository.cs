@@ -3,6 +3,7 @@ using Microsoft.Data.Sqlite;
 using Mnemosyne.WPF.Models;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -20,6 +21,12 @@ namespace Mnemosyne.WPF.Services
         {
             public string Month { get; set; } = string.Empty;
             public string Platform { get; set; } = string.Empty;
+            public long TotalAmount { get; set; }
+        }
+
+        public sealed class MonthlyAmountRow
+        {
+            public string Month { get; set; } = string.Empty;
             public long TotalAmount { get; set; }
         }
 
@@ -246,10 +253,11 @@ namespace Mnemosyne.WPF.Services
             };
         }
 
-        public List<Expense> GetAllFireflyExpenses()
+        public object GetFireflyOverview()
         {
             using var connection = new SqliteConnection(_connectionString);
-            var sql = @"
+
+            var fireflySql = @"
                 SELECT Id, ExpenseDate, Platform, Amount, ItemName, Tags
                 FROM expenses
                 WHERE Amount > 0
@@ -259,7 +267,109 @@ namespace Mnemosyne.WPF.Services
                   )
                 ORDER BY ExpenseDate DESC, Id DESC";
 
-            return connection.Query<Expense>(sql).ToList();
+            var fireflyExpenses = connection.Query<Expense>(fireflySql).ToList();
+
+            var years = fireflyExpenses
+                .Select(item => item.ExpenseDate.Year)
+                .Distinct()
+                .OrderByDescending(y => y)
+                .ToList();
+
+            var heatmapByYear = fireflyExpenses
+                .GroupBy(item => item.ExpenseDate.Year)
+                .ToDictionary(
+                    group => group.Key.ToString(),
+                    group => group
+                        .GroupBy(item => item.ExpenseDate.ToString("yyyy-MM-dd"))
+                        .Select(dayGroup => new object[]
+                        {
+                            dayGroup.Key,
+                            dayGroup.Sum(item => item.Amount)
+                        })
+                        .OrderBy(item => item[0])
+                        .ToList()
+                );
+
+            var detailsByDate = fireflyExpenses
+                .GroupBy(item => item.ExpenseDate.ToString("yyyy-MM-dd"))
+                .ToDictionary(
+                    group => group.Key,
+                    group => group
+                        .OrderByDescending(item => item.Id)
+                        .Select(item => new
+                        {
+                            item.Id,
+                            item.ItemName,
+                            item.Amount
+                        })
+                        .ToList<object>()
+                );
+
+            var totalMonthlySql = @"
+                SELECT strftime('%Y-%m', ExpenseDate) as Month, COALESCE(SUM(Amount), 0) as TotalAmount
+                FROM expenses
+                WHERE Amount > 0
+                GROUP BY Month
+                ORDER BY Month ASC";
+
+            var fireflyMonthlySql = @"
+                SELECT strftime('%Y-%m', ExpenseDate) as Month, COALESCE(SUM(Amount), 0) as TotalAmount
+                FROM expenses
+                WHERE Amount > 0
+                  AND (
+                    ItemName LIKE '%流萤%'
+                    OR EXISTS (SELECT 1 FROM json_each(Tags) WHERE value = '流萤')
+                  )
+                GROUP BY Month
+                ORDER BY Month ASC";
+
+            var totalMonthly = connection.Query<MonthlyAmountRow>(totalMonthlySql).ToList();
+            var fireflyMonthly = connection.Query<MonthlyAmountRow>(fireflyMonthlySql)
+                .ToDictionary(item => item.Month, item => item.TotalAmount);
+
+            var monthlyShare = new List<object>();
+
+            if (totalMonthly.Count > 0)
+            {
+                static DateOnly ParseMonth(string month)
+                {
+                    return DateOnly.ParseExact($"{month}-01", "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                }
+
+                DateOnly monthCursor = ParseMonth(totalMonthly.First().Month);
+                DateOnly endMonth = ParseMonth(totalMonthly.Last().Month);
+
+                var totalMonthlyMap = totalMonthly.ToDictionary(item => item.Month, item => item.TotalAmount);
+
+                while (monthCursor <= endMonth)
+                {
+                    var monthText = monthCursor.ToString("yyyy-MM");
+                    var totalAmount = totalMonthlyMap.TryGetValue(monthText, out var t) ? t : 0L;
+                    var fireflyAmount = fireflyMonthly.TryGetValue(monthText, out var f) ? f : 0L;
+
+                    var fireflyPercent = totalAmount > 0 ? Math.Round((double)fireflyAmount * 100d / totalAmount, 2) : 0d;
+                    var otherPercent = totalAmount > 0 ? Math.Round(100d - fireflyPercent, 2) : 0d;
+
+                    monthlyShare.Add(new
+                    {
+                        Month = monthText,
+                        FireflyAmount = fireflyAmount,
+                        TotalAmount = totalAmount,
+                        FireflyPercent = fireflyPercent,
+                        OtherPercent = otherPercent
+                    });
+
+                    monthCursor = monthCursor.AddMonths(1);
+                }
+            }
+
+            return new
+            {
+                Years = years,
+                HeatmapByYear = heatmapByYear,
+                DetailsByDate = detailsByDate,
+                MonthlyShare = monthlyShare
+            };
         }
 
         public object GetAnnualHeatmap(string year)

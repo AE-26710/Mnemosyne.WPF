@@ -20,7 +20,29 @@
                  @change="fetchData">
     </date-filter>
 
+    <h3>流萤相关支出热力图</h3>
     <div ref="heatmapRef" style="width: 100%; height: 250px; margin-top: 20px;"></div>
+
+    <div v-if="selectedDate" class="details-section" style="border-top: 1px solid var(--color-border); margin-top: 20px;">
+      <h3>消费详情 {{ selectedDate }}</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th width="75%">项目 / ITEM</th>
+            <th width="25%" style="text-align: right;">金额 / AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in dailyDetails" :key="item.id">
+            <td>{{ item.itemName }}</td>
+            <td style="text-align: right;">¥ {{ formatCurrency(item.amount) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>流萤相关支出占比</h3>
+    <div ref="shareBarRef" style="width: 100%; height: 320px;"></div>
   </div>
 
   <script src="./js/utils.js"></script>

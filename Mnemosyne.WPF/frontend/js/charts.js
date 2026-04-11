@@ -16,9 +16,13 @@ ECharts Default Color Palette:
 const { formatCurrency } = MnemosyneUtils;
 
 (function(global) {
+    /** @type {Record<string, Function>} 图表渲染函数集合 */
     const MnemosyneCharts = {};
+    /** @type {WeakMap<HTMLElement, ResizeObserver>} DOM 与 ResizeObserver 的映射 */
     const resizeObservers = new WeakMap();
+    /** @type {Set<echarts.ECharts>} 当前激活的图表实例 */
     const activeCharts = new Set();
+    /** @type {Record<string, string>} 平台配色表 */
     const platformColors = {
         '崩坏：星穹铁道': '#FAC858',
         '崩坏3': '#73C0DE',
@@ -28,16 +32,31 @@ const { formatCurrency } = MnemosyneUtils;
         'default': '#9E9E9E'
     };
 
+    /** @type {CSSStyleDeclaration} 根样式对象 */
     const rootStyle = getComputedStyle(document.documentElement);
+    /** @type {string} 页面背景色 */
     const bgColor = rootStyle.getPropertyValue('--color-bg').trim();
+    /** @type {string} 深色背景 */
     const darkBgColor = rootStyle.getPropertyValue('--color-bg-dark').trim();
+    /** @type {string} 主文本色 */
     const mainTextColor = rootStyle.getPropertyValue('--color-text-main').trim();
+    /** @type {string} 次文本色 */
     const mutedTextColor = rootStyle.getPropertyValue('--color-text-muted').trim();
+    /** @type {string} 边框色 */
     const borderColor = rootStyle.getPropertyValue('--color-border').trim();
+    /** @type {string} 流萤主题色 */
     const fireflyColor = rootStyle.getPropertyValue('--color-firefly').trim();
+    /** @type {string} 主字体 */
     const fontPrimary = rootStyle.getPropertyValue('--font-primary').trim();
+    /** @type {string} 统一图表左内边距 */
+    const chartAreaLeft = 60;
+    /** @type {string} 统一图表右内边距 */
+    const chartAreaRight = 20;
 
-    // 定义所有图表的通用基础配置
+    /**
+     * 获取图表通用基础配置。
+     * @returns {echarts.EChartsCoreOption}
+     */
     function getChartsOption() {
         return {
             backgroundColor: 'transparent',
@@ -53,25 +72,29 @@ const { formatCurrency } = MnemosyneUtils;
         };
     }
 
-    // 定义Heatmap的基础配置
+    /**
+     * 获取 Heatmap 通用基础配置。
+     * @param {number|string} year 年份
+     * @returns {echarts.EChartsCoreOption}
+     */
     function getHeatmapBaseOption(year) {
         const baseOption = getChartsOption();
         const heatmapSpecific = {
             calendar: {
                 top: 40,
-                left: 40,
-                right: 40,
+                left: chartAreaLeft,
+                right: chartAreaRight,
                 cellSize: ['auto', 22],
                 splitLine: { show: false },
                 yearLabel: { show: false },
                 range: year,
-                dayLabel: { 
-                    firstDay: 1, 
+                dayLabel: {
+                    firstDay: 1,
                     nameMap: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
                     color: mutedTextColor,
                     fontFamily: fontPrimary
                 },
-                monthLabel: { 
+                monthLabel: {
                     color: mainTextColor,
                     fontFamily: fontPrimary
                 },
@@ -86,17 +109,26 @@ const { formatCurrency } = MnemosyneUtils;
                         color: mutedTextColor,
                         fontFamily: fontPrimary,
                     }
-                }
+                },
             }
         };
         return { ...baseOption, ...heatmapSpecific };
     }
 
-
+    /**
+     * 获取平台颜色。
+     * @param {string} platformName 平台名称
+     * @returns {string}
+     */
     function getPlatformColor(platformName) {
         return platformColors[platformName] || platformColors['default'];
     }
 
+    /**
+     * 绑定图表自动 resize 监听。
+     * @param {HTMLElement} element 图表容器
+     * @param {echarts.ECharts} chart 图表实例
+     */
     function bindAutoResize(element, chart) {
         const oldObserver = resizeObservers.get(element);
         if (oldObserver) {
@@ -111,6 +143,11 @@ const { formatCurrency } = MnemosyneUtils;
         resizeObservers.set(element, observer);
     }
 
+    /**
+     * 重置并初始化图表实例。
+     * @param {HTMLElement} element 图表容器
+     * @returns {echarts.ECharts}
+     */
     function resetChartInstance(element) {
         const existing = echarts.getInstanceByDom(element);
         if (existing) {
@@ -182,6 +219,13 @@ const { formatCurrency } = MnemosyneUtils;
     };
 
     // 月度堆叠柱状图
+    /**
+     * 渲染月度堆叠柱状图。
+     * @param {HTMLElement} element 图表容器
+     * @param {Array<{month:string, platform:string, totalAmount:number}>} rawData 原始数据
+     * @param {(payload:{month:string, platforms:Array<{name:string,value:number}>, total:number}) => void} [onMonthSelected] 点击月份回调
+     * @returns {echarts.ECharts}
+     */
     MnemosyneCharts.renderMonthlyStackedBar = function (element, rawData, onMonthSelected) {
         const chart = resetChartInstance(element);
         // 获取基类配置
@@ -267,7 +311,12 @@ const { formatCurrency } = MnemosyneUtils;
                 },
             },
 
-            grid: { left: '3%', right: '4%', bottom: '25%', containLabel: true },
+            grid: { 
+                left: chartAreaLeft, 
+                right: chartAreaRight, 
+                bottom: '25%', 
+                containLabel: false 
+            },
 
             xAxis: {
                 type: 'category',
@@ -319,7 +368,144 @@ const { formatCurrency } = MnemosyneUtils;
         return chart;
     };
 
+    /**
+     * 渲染流萤占比 100% 堆叠柱状图。
+     * @param {HTMLElement} element 图表容器
+     * @param {Array<{month:string, fireflyPercent:number, otherPercent:number, fireflyAmount:number, totalAmount:number}>} monthlyShareData 月度占比数据
+     * @param {number} [defaultWindow=48] 默认显示窗口（月）
+     * @returns {echarts.ECharts}
+     */
+    MnemosyneCharts.renderFireflySharePercentStackedBar = function (element, monthlyShareData, defaultWindow = 48) {
+        const chart = resetChartInstance(element);
+        const baseOption = getChartsOption();
+
+        const data = Array.isArray(monthlyShareData) ? monthlyShareData : [];
+        const months = data.map((item) => item.month);
+        const fireflyData = data.map((item) => item.fireflyPercent || 0);
+        const otherData = data.map((item) => item.otherPercent || 0);
+
+        const specificOption = {
+            tooltip: {
+                padding: 12,
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' },
+                formatter: (params) => {
+                    if (!params || params.length === 0) return '';
+                    const month = params[0].name;
+                    const row = data.find((item) => item.month === month);
+                    const fireflyPercent = row ? row.fireflyPercent || 0 : 0;
+                    const otherPercent = row ? row.otherPercent || 0 : 0;
+                    const fireflyAmount = row ? row.fireflyAmount || 0 : 0;
+                    const totalAmount = row ? row.totalAmount || 0 : 0;
+
+                    return `
+                        <div style="font-weight:bold; margin-bottom:6px;">${month}</div>
+                        <div style="display:flex; justify-content:space-between; gap:20px; min-width:180px;">
+                            <span>流萤占比</span><span>${fireflyPercent.toFixed(2)}%</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; gap:20px; min-width:180px;">
+                            <span>其他占比</span><span>${otherPercent.toFixed(2)}%</span>
+                        </div>
+                        <div style="border-top:1px dashed #CCC; margin-top:8px; padding-top:8px;">
+                            <div style="display:flex; justify-content:space-between; gap:20px;"><span>流萤金额</span><span>¥ ${formatCurrency(fireflyAmount)}</span></div>
+                            <div style="display:flex; justify-content:space-between; gap:20px;"><span>月总支出</span><span>¥ ${formatCurrency(totalAmount)}</span></div>
+                        </div>`;
+                }
+            },
+
+            legend: {
+                bottom: 25,
+                icon: 'circle',
+                itemGap: 20,
+                textStyle: {
+                    fontFamily: fontPrimary,
+                },
+                data: ['流萤', '其他']
+            },
+
+            dataZoom: [
+                {
+                    type: 'inside',
+                    startValue: Math.max(0, months.length - defaultWindow),
+                    endValue: months.length - 1,
+                },
+                {
+                    type: 'slider',
+                    show: true,
+                    height: 8,
+                    bottom: 5,
+                    borderColor: 'transparent',
+                    backgroundColor: bgColor,
+                    fillerColor: '#D3CCC0',
+                    handleSize: 0,
+                    showDetail: false,
+                },
+            ],
+
+            grid: { 
+                left: chartAreaLeft, 
+                right: chartAreaRight, 
+                bottom: '25%', 
+                containLabel: false,
+            },
+
+            xAxis: {
+                type: 'category',
+                data: months,
+                axisLine: { lineStyle: { color: borderColor } },
+                axisLabel: { color: mutedTextColor, fontFamily: fontPrimary },
+            },
+
+            yAxis: {
+                type: 'value',
+                min: 0,
+                max: 100,
+                splitLine: { lineStyle: { color: borderColor, type: 'dashed' } },
+                axisLabel: {
+                    color: mutedTextColor,
+                    fontFamily: fontPrimary,
+                    formatter: (value) => `${value.toFixed(0)}%`,
+                },
+            },
+
+            series: [
+                {
+                    name: '流萤',
+                    type: 'bar',
+                    stack: 'total',
+                    barMaxWidth: 40,
+                    itemStyle: {
+                        color: fireflyColor,
+                    },
+                    data: fireflyData
+                },
+                {
+                    name: '其他',
+                    type: 'bar',
+                    stack: 'total',
+                    barMaxWidth: 40,
+                    itemStyle: {
+                        color: '#D7D0C3',
+                    },
+                    data: otherData
+                }
+            ]
+        };
+
+        chart.setOption(baseOption);
+        chart.setOption(specificOption);
+
+        return chart;
+    };
+
     // 流萤热力图
+    /**
+     * 渲染流萤热力图。
+     * @param {HTMLElement} element 图表容器
+     * @param {Array<[string, number]>} heatmapData 热力图数据
+     * @param {number|string} year 年份
+     * @returns {echarts.ECharts}
+     */
     MnemosyneCharts.renderFireflyHeatmap = function (element, heatmapData, year) {
         /*  element: DOM 元素
             heatmap: [{<date>, <amount>}, ...]
@@ -374,6 +560,13 @@ const { formatCurrency } = MnemosyneUtils;
     };
 
     // 年度热力图
+    /**
+     * 渲染年度热力图。
+     * @param {HTMLElement} element 图表容器
+     * @param {Array<[string, number]>} heatmapData 热力图数据
+     * @param {number|string} year 年份
+     * @returns {echarts.ECharts}
+     */
     MnemosyneCharts.renderAnnualHeatmap = function (element, heatmapData, year) {
         const chart = resetChartInstance(element);
         // 获取基类配置
