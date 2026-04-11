@@ -95,7 +95,7 @@ const { formatCurrency } = MnemosyneUtils;
                     fontFamily: fontPrimary
                 },
                 monthLabel: {
-                    color: mainTextColor,
+                    color: mutedTextColor,
                     fontFamily: fontPrimary
                 },
                 itemStyle: {
@@ -248,6 +248,9 @@ const { formatCurrency } = MnemosyneUtils;
                     const found = rawData.find((d) => d.month === month && d.platform === platform);
                     return found ? found.totalAmount : 0;
                 }),
+                emphasis: {
+                    disabled: true
+                }
             };
         });
 
@@ -258,7 +261,7 @@ const { formatCurrency } = MnemosyneUtils;
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' },
                 formatter: function (params) {
-                    let html = `<div style="font-weight:bold; font-size:1.1rem; margin-bottom:10px;">${params[0].name}</div>`;
+                    let html = `<div style="font-weight:bold; font-size:var(--fs-md); margin-bottom:10px;">${params[0].name}</div>`;
                     let monthTotal = 0;
 
                     params.forEach((p) => {
@@ -268,7 +271,7 @@ const { formatCurrency } = MnemosyneUtils;
 
                         html += `
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px; min-width: 180px;">
-                                    <span style="font-size:0.9rem;">${p.marker} ${p.seriesName}</span>
+                                    <span style="font-size:var(--fs-sm);">${p.marker} ${p.seriesName}</span>
                                     <span>¥ ${formatCurrency(p.value)}</span>
                                 </div>`;
                         monthTotal += p.value;
@@ -299,7 +302,7 @@ const { formatCurrency } = MnemosyneUtils;
                     fillerColor: '#D3CCC0',
                     handleSize: 0,
                     showDetail: false,
-                },
+            },
             ],
 
             legend: {
@@ -470,6 +473,9 @@ const { formatCurrency } = MnemosyneUtils;
 
             series: [
                 {
+                    emphasis: {
+                        disabled: true
+                    },
                     name: '流萤',
                     type: 'bar',
                     stack: 'total',
@@ -480,12 +486,15 @@ const { formatCurrency } = MnemosyneUtils;
                     data: fireflyData
                 },
                 {
+                    emphasis: {
+                        disabled: true
+                    },
                     name: '其他',
                     type: 'bar',
                     stack: 'total',
                     barMaxWidth: 40,
                     itemStyle: {
-                        color: '#D7D0C3',
+                        color: darkBgColor,
                     },
                     data: otherData
                 }

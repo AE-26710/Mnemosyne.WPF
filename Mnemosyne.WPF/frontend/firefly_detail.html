@@ -11,38 +11,55 @@
   <div id="app" class="container">
     <header>
       <h1 onclick="window.location.href='./index.html'" style="cursor:pointer;">Expense Dashboard</h1>
-      <div style="font-size: var(--fs-xl); font-weight: 500;">Firefly Overview</div>
+      <div style="font-size: var(--fs-xl); font-weight: 500;">
+        Firefly Overview
+      </div>
     </header>
 
-    <date-filter :years="availableYears"
-                 v-model:year="selectedYear"
-                 :show-month="false"
-                 @change="fetchData">
-    </date-filter>
-
-    <h3>流萤相关支出热力图</h3>
-    <div ref="heatmapRef" style="width: 100%; height: 250px; margin-top: 20px;"></div>
-
-    <div v-if="selectedDate" class="details-section" style="border-top: 1px solid var(--color-border); margin-top: 20px;">
-      <h3>消费详情 {{ selectedDate }}</h3>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th width="75%">项目 / ITEM</th>
-            <th width="25%" style="text-align: right;">金额 / AMOUNT</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in dailyDetails" :key="item.id">
-            <td>{{ item.itemName }}</td>
-            <td style="text-align: right;">¥ {{ formatCurrency(item.amount) }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div style="margin-bottom: 30px;">
+      <date-filter :years="availableYears"
+                   v-model:year="selectedYear"
+                   :show-month="false"
+                   @change="fetchData">
+      </date-filter>
     </div>
 
-    <h3>流萤相关支出占比</h3>
-    <div ref="shareBarRef" style="width: 100%; height: 320px;"></div>
+    <div class="dashboard-layout">
+      <div class="chart-card">
+        <h2>支出热力图 / HEATMAP</h2>
+        <div ref="heatmapRef" style="width: 100%; height: 250px;"></div>
+      </div>
+
+      <div v-if="selectedDate" class="records-section">
+      <h2>
+        <span>消费明细<span class="subtitle">Transaction History of {{selectedDate}}</span></span>
+      </h2>
+
+        <div class="receipt-wrapper">
+          <div class="receipt-group">
+            <div class="receipt-group-header">
+              <span>项目 / ITEM</span>
+              <span>金额 / AMOUNT</span>
+            </div>
+
+            <div class="receipt-item" v-for="item in dailyDetails" :key="item.id">
+              <div class="receipt-item-main">
+                <div class="receipt-item-name">{{ item.itemName }}</div>
+              </div>
+              <div class="receipt-item-amount">
+                ¥ {{ formatCurrency(item.amount) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h2>支出占比 / SHARE</h2>
+        <div ref="shareBarRef" style="width: 100%; height: 320px;"></div>
+      </div>
+    </div>
+
   </div>
 
   <script src="./js/utils.js"></script>

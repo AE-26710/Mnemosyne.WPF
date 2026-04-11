@@ -23,14 +23,14 @@
 
     <div class="kpi-grid">
       <div class="kpi-card">
-        <div class="kpi-title">当月总支出</div>
+        <h2>当月总支出</h2>
         <div class="kpi-subtitle">Monthly Expenditure</div>
         <div class="kpi-value">¥ {{ formatCurrency(monthlyTotal) }}</div>
         <div class="kpi-note">共 {{ records.length }} 笔，日均 ¥ {{ formatCurrency(dailyAvg) }}</div>
       </div>
 
       <div class="kpi-card">
-        <div class="kpi-title">环比</div>
+        <h2>环比</h2>
         <div class="kpi-subtitle">MoM</div>
         <div class="kpi-value" :class="getRateClass(momRate)">
           {{ momRate >= 0 ? '+' : '' }}{{ momRate.toFixed(2) }}%
@@ -41,7 +41,7 @@
       </div>
 
       <div class="kpi-card">
-        <div class="kpi-title">同比</div>
+        <h2>同比</h2>
         <div class="kpi-subtitle">YoY</div>
         <div class="kpi-value" :class="getRateClass(yoyRate)">
           {{ yoyRate >= 0 ? '+' : '' }}{{ yoyRate.toFixed(2) }}%
@@ -52,7 +52,7 @@
       </div>
 
       <div class="kpi-card">
-        <div class="kpi-title">流萤指数</div>
+        <h2>流萤指数</h2>
         <div class="kpi-subtitle">Firefly Obsession Index</div>
         <div class="kpi-value">{{ (fireflyIndex || 0).toFixed(2) }}%</div>
         <div class="kpi-note">总计金额：¥ {{ formatCurrency(fireflyTotal) }}</div>
@@ -60,7 +60,7 @@
     </div>
 
     <div class="records-section">
-      <h2 class="section-title" style="display: flex; justify-content: space-between;">
+      <h2>
         <span>消费明细<span class="subtitle">Transaction History</span></span>
       </h2>
       <div class="receipt-wrapper" v-if="records.length > 0">
