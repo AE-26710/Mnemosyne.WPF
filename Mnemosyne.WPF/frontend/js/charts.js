@@ -673,17 +673,18 @@ const { formatCurrency } = MnemosyneUtils;
                         const amount = found ? found.totalAmount : 0;
                         
                         html += `
-                            <div style="display:flex; justify-content:space-between; margin-bottom:5px; min-width: 180px;">
-                                <span style="font-size:var(--fs-sm);">${p.marker} ${p.seriesName}</span>
-                                <span>${p.value}% (¥ ${formatCurrency(amount)})</span>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; min-width:200px;">
+                                <div style="display:flex; align-items:center;">
+                                    ${p.marker}
+                                    <span style="margin-left:8px; font-size:var(--fs-sm);">${p.seriesName}</span>
+                                </div>
+
+                                <div style="display:flex; flex-direction:column; align-items:flex-end; line-height:1.2;">
+                                    <span style="font-weight:500;">¥ ${formatCurrency(amount)}</span>
+                                    <span style="font-size:0.85em;">${p.value}%</span>
+                                </div>
                             </div>`;
                     });
-
-                    html += `
-                        <div style="border-top:1px dashed #CCC; margin-top:8px; padding-top:8px; display:flex; justify-content:space-between; font-weight:bold;">
-                            <span>当月总支出</span>
-                            <span>¥ ${formatCurrency(monthTotalAmount)}</span>
-                        </div>`;
                     return html;
                 },
             },
