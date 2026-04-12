@@ -372,23 +372,48 @@ namespace Mnemosyne.WPF.Services
             };
         }
 
-        public object GetAnnualHeatmap(string year)
+        public object GetYearDetail(string year)
         {
             using var connection = new SqliteConnection(_connectionString);
-            // 查询指定年份内的所有记录，按天汇总
-            var sql = @"
-                SELECT ExpenseDate, SUM(Amount) as TotalAmount 
+            
+            // 1. Heatmap data
+            var heatmapSql = @"
+                SELECT strftime('%Y-%m-%d', ExpenseDate) as ExpenseDate, SUM(Amount) as TotalAmount 
                 FROM expenses 
                 WHERE strftime('%Y', ExpenseDate) = @Year 
                   AND Amount > 0
                 GROUP BY ExpenseDate";
-            var rows = connection.Query(sql, new { Year = year }).ToList();
-            // ECharts 期望的 [[date, value], ...] 格式
-            var chartData = rows.Select(r => new object[] {
+            var heatmapRows = connection.Query(heatmapSql, new { Year = year }).ToList();
+            var heatmapData = heatmapRows.Select(r => new object[] {
                 ((IDictionary<string, object>)r)["ExpenseDate"],
                 ((IDictionary<string, object>)r)["TotalAmount"]
             }).ToList();
-            return chartData;
+
+            // 2. Platform Monthly Data
+            var monthlySql = @"
+                SELECT CAST(strftime('%m', ExpenseDate) AS INTEGER) as Month, Platform, SUM(Amount) as TotalAmount
+                FROM expenses
+                WHERE strftime('%Y', ExpenseDate) = @Year
+                  AND Amount > 0
+                GROUP BY Month, Platform
+                ORDER BY Month ASC";
+            var monthlyRows = connection.Query(monthlySql, new { Year = year }).ToList();
+            
+            // 3. Platform Share Data (for the whole year)
+            var shareSql = @"
+                SELECT Platform as Name, SUM(Amount) as Value
+                FROM expenses
+                WHERE strftime('%Y', ExpenseDate) = @Year
+                  AND Amount > 0
+                GROUP BY Platform
+                ORDER BY Value DESC";
+            var shareRows = connection.Query(shareSql, new { Year = year }).ToList();
+
+            return new { 
+                Heatmap = heatmapData, 
+                MonthlyPlatform = monthlyRows,
+                PlatformShare = shareRows
+            };
         }
     }
 }

@@ -617,6 +617,117 @@ const { formatCurrency } = MnemosyneUtils;
         return chart;
     }
 
+    // 年度各大平台每月百分比堆叠柱状图
+    MnemosyneCharts.renderAnnualPlatformPercentStackedBar = function (element, rawData) {
+        const chart = resetChartInstance(element);
+        const baseOption = getChartsOption();
+
+        // 固定 12 个月
+        const months = Array.from({ length: 12 }, (_, i) => i + 1);
+        const platforms = [...new Set(rawData.map((item) => item.platform))];
+
+        // 计算每月总支出
+        const monthlyTotals = {};
+        months.forEach((m) => {
+            monthlyTotals[m] = rawData
+                .filter(d => d.month === m)
+                .reduce((sum, d) => sum + d.totalAmount, 0);
+        });
+
+        // 构建每个平台的系列数据
+        const series = platforms.map((platform) => {
+            return {
+                name: platform,
+                type: 'bar',
+                stack: 'total',
+                barMaxWidth: 30,
+                itemStyle: {
+                    color: getPlatformColor(platform),
+                },
+                data: months.map((month) => {
+                    const found = rawData.find((d) => d.month === month && d.platform === platform);
+                    const amount = found ? found.totalAmount : 0;
+                    const total = monthlyTotals[month] || 1; // 避免除以0
+                    return amount > 0 ? Number(((amount / total) * 100).toFixed(2)) : 0;
+                }),
+                emphasis: {
+                    disabled: true
+                }
+            };
+        });
+
+        const specificOption = {
+            tooltip: {
+                padding: 15,
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' },
+                formatter: function (params) {
+                    const month = params[0].name;
+                    let html = `<div style="font-weight:bold; font-size:var(--fs-md); margin-bottom:10px;">${month}月</div>`;
+                    let monthTotalAmount = monthlyTotals[month] || 0;
+
+                    params.forEach((p) => {
+                        if (p.value === 0) return;
+                        const platform = p.seriesName;
+                        const found = rawData.find(d => d.month === parseInt(month) && d.platform === platform);
+                        const amount = found ? found.totalAmount : 0;
+                        
+                        html += `
+                            <div style="display:flex; justify-content:space-between; margin-bottom:5px; min-width: 180px;">
+                                <span style="font-size:var(--fs-sm);">${p.marker} ${p.seriesName}</span>
+                                <span>${p.value}% (¥ ${formatCurrency(amount)})</span>
+                            </div>`;
+                    });
+
+                    html += `
+                        <div style="border-top:1px dashed #CCC; margin-top:8px; padding-top:8px; display:flex; justify-content:space-between; font-weight:bold;">
+                            <span>当月总支出</span>
+                            <span>¥ ${formatCurrency(monthTotalAmount)}</span>
+                        </div>`;
+                    return html;
+                },
+            },
+            legend: {
+                bottom: 25,
+                icon: 'circle',
+                itemGap: 20,
+                textStyle: { fontFamily: fontPrimary },
+                data: platforms
+            },
+            grid: { 
+                left: chartAreaLeft, 
+                right: chartAreaRight, 
+                bottom: '25%',
+                containLabel: false 
+            },
+            xAxis: {
+                type: 'category',
+                data: months.map(m => m.toString()),
+                axisLine: { lineStyle: { color: borderColor } },
+                axisLabel: { color: mutedTextColor, fontFamily: fontPrimary },
+            },
+            yAxis: {
+                type: 'value',
+                max: 100,
+                axisLine: { show: false },
+                axisTick: { show: false },
+                splitLine: {
+                    lineStyle: { type: 'dashed', color: borderColor, width: 1 },
+                },
+                axisLabel: {
+                    fontFamily: fontPrimary,
+                    formatter: '{value}%',
+                    color: mutedTextColor,    
+                },
+            },
+            series: series,
+        };
+
+        chart.setOption(baseOption);
+        chart.setOption(specificOption);
+        return chart;
+    }
+
     global.MnemosyneCharts = MnemosyneCharts;
 
 })(window);

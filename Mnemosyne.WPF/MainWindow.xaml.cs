@@ -111,9 +111,9 @@ namespace Mnemosyne.WPF
 					case "GetFireflyOverview":
 						response.Data = _repo.GetFireflyOverview();
 						break;
-					case "GetAnnualHeatmap":
-                        string aYear = request.Payload.TryGetProperty("year", out var ay) ? ay.ToString() : DateTime.Now.Year.ToString();
-						response.Data = _repo.GetAnnualHeatmap(aYear);
+					case "GetYearDetail":
+                        string yYear = request.Payload.TryGetProperty("year", out var yy) ? yy.ToString() : DateTime.Now.Year.ToString();
+						response.Data = _repo.GetYearDetail(yYear);
                         break;
                     default:
 						throw new Exception($"未知的 API Action: {request.Action}");

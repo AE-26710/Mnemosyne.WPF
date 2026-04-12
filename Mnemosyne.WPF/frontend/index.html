@@ -98,8 +98,9 @@
     </div>
 
     <div class="records-section">
-      <h2>
+      <h2 style="display: flex; justify-content: space-between; align-items: center;">
         <span>消费明细<span class="subtitle">Transaction History</span></span>
+        <button class="btn btn-primary" @click="openForm()">+ 添加记录</button>
       </h2>
 
       <table class="data-table">
@@ -167,7 +168,7 @@
         </div>
         <div class="form-group">
           <label>金额</label>
-          <input type="number" step="0.01" v-model="formData.amount">
+          <input type="number" v-model="formData.amount">
         </div>
         <div class="form-group">
           <label>标签（用逗号分隔）</label>
