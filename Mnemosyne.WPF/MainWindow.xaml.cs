@@ -95,11 +95,7 @@ namespace Mnemosyne.WPF
 						response.Data = _repo.GetKPIStats(); // 直接调用 Repo
 						break;
 					case "GetPlatforms":
-						response.Data = _repo.GetPlatformSummary(null);
-						break;
-					case "GetPlatformByMonth":
-						string pMonth = request.Payload.TryGetProperty("month", out var pm) ? pm.GetString() : null;
-						response.Data = _repo.GetPlatformSummary(pMonth);
+						response.Data = _repo.GetPlatformSummary();
 						break;
 					case "GetMonthlyStacked":
 						response.Data = _repo.GetMonthlyStackedSummary();
@@ -115,6 +111,10 @@ namespace Mnemosyne.WPF
                         string yYear = request.Payload.TryGetProperty("year", out var yy) ? yy.ToString() : DateTime.Now.Year.ToString();
 						response.Data = _repo.GetYearDetail(yYear);
                         break;
+					case "GetMonthDetail":
+						string month = request.Payload.TryGetProperty("month", out var m) ? m.GetString() : DateTime.Now.ToString("yyyy-MM");
+						response.Data = _repo.GetMonthDetail(month);
+						break;
                     default:
 						throw new Exception($"未知的 API Action: {request.Action}");
 				}

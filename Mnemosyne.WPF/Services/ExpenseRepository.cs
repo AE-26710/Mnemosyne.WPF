@@ -130,26 +130,13 @@ namespace Mnemosyne.WPF.Services
         // --- 图表统计相关 ---
 
         /// <summary>
-        /// 对应原先的 summary_platform_all 和 summary_platform_by_month
+        /// 对应原先的 summary_platform_all
         /// </summary>
-        public object GetPlatformSummary(string month = null)
+        public object GetPlatformSummary()
         {
             using var connection = new SqliteConnection(_connectionString);
-            string sql;
-            object param = null;
-
-            if (string.IsNullOrEmpty(month))
-            {
-                sql = "SELECT Platform, COALESCE(SUM(Amount), 0) as TotalAmount FROM expenses WHERE Amount > 0 GROUP BY Platform";
-            }
-            else
-            {
-                sql = "SELECT Platform, COALESCE(SUM(Amount), 0) as TotalAmount FROM expenses WHERE Amount > 0 AND strftime('%Y-%m', ExpenseDate) = @Month GROUP BY Platform";
-                param = new { Month = month };
-            }
-
-            // Dapper 返回 dynamic 列表，直接就能序列化为 JSON 数组
-            var rows = connection.Query<PlatformSummaryRow>(sql, param).ToList();
+            string sql = "SELECT Platform, COALESCE(SUM(Amount), 0) as TotalAmount FROM expenses WHERE Amount > 0 GROUP BY Platform";
+            var rows = connection.Query<PlatformSummaryRow>(sql).ToList();
             return new { Data = rows };
         }
 
@@ -413,6 +400,41 @@ namespace Mnemosyne.WPF.Services
                 Heatmap = heatmapData, 
                 MonthlyPlatform = monthlyRows,
                 PlatformShare = shareRows
+            };
+        }
+
+        public object GetMonthDetail(string month)
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            var targetDate = DateOnly.Parse(month + "-01");
+            var prevMonthDate = targetDate.AddMonths(-1).ToString("yyyy-MM");
+            var lastYearMonthDate = targetDate.AddYears(-1).ToString("yyyy-MM");
+
+            var expenses = connection.Query<Expense>(@"
+                SELECT * FROM expenses 
+                WHERE strftime('%Y-%m', ExpenseDate) = @Month 
+                ORDER BY ExpenseDate DESC, Id DESC", new { Month = month }).ToList();
+
+            var lastMonthTotal = connection.QueryFirstOrDefault<long>(@"
+                SELECT COALESCE(SUM(Amount), 0) FROM expenses 
+                WHERE strftime('%Y-%m', ExpenseDate) = @PrevMonth AND Amount > 0", new { PrevMonth = prevMonthDate });
+
+            var lastYearTotal = connection.QueryFirstOrDefault<long>(@"
+                SELECT COALESCE(SUM(Amount), 0) FROM expenses 
+                WHERE strftime('%Y-%m', ExpenseDate) = @LastYearMonth AND Amount > 0", new { LastYearMonth = lastYearMonthDate });
+
+            var platformData = connection.Query<PlatformSummaryRow>(@"
+                SELECT Platform, COALESCE(SUM(Amount), 0) as TotalAmount 
+                FROM expenses 
+                WHERE Amount > 0 AND strftime('%Y-%m', ExpenseDate) = @Month 
+                GROUP BY Platform", new { Month = month }).ToList();
+
+            return new
+            {
+                Records = expenses,
+                LastMonthTotal = lastMonthTotal,
+                LastYearSameMonthTotal = lastYearTotal,
+                PlatformData = platformData
             };
         }
     }

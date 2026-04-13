@@ -86,11 +86,6 @@ const api = {
         return await requestWPF('GetMonthlyStacked');
     },
 
-    // 获取指定月份的各平台支出数据
-    async getPlatformByMonth(month) {
-        return await requestWPF('GetPlatformByMonth', { month });
-    },
-
     // 增加、编辑、删除支出记录
     async addExpense(data) {
         return await requestWPF('AddExpense', data);
@@ -115,6 +110,10 @@ const api = {
 
     async getYearDetail(year) {
         return await requestWPF('GetYearDetail', { year });
+    },
+
+    async getMonthDetail(month) {
+        return await requestWPF('GetMonthDetail', { month });
     }
 };
 

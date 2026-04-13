@@ -44,7 +44,7 @@
                     <label style="font-weight: 500; margin-left: 10px;">选择月份:</label>
                     <select :value="month"
                             :disabled="!showMonth"
-                            @change="(function(e){ const v = e.target.value; $emit('update:month', v === '' ? '' : Number(v)); $emit('change'); })(event)"
+                            @change="$emit('update:month', $event.target.value === '' ? '' : Number($event.target.value)); $emit('change')"
                             class="custom-select">
                         <option v-if="!showMonth" value="">全年</option>
                         <option v-for="m in 12" :key="m" :value="m">{{ m }}月</option>
