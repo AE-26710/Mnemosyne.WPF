@@ -15,7 +15,7 @@ ECharts Default Color Palette:
 
 const { formatCurrency } = MnemosyneUtils;
 
-(function(global) {
+(function (global) {
     /** @type {Record<string, Function>} 图表渲染函数集合 */
     const MnemosyneCharts = {};
     /** @type {WeakMap<HTMLElement, ResizeObserver>} DOM 与 ResizeObserver 的映射 */
@@ -230,7 +230,7 @@ const { formatCurrency } = MnemosyneUtils;
         const chart = resetChartInstance(element);
         // 获取基类配置
         const baseOption = getChartsOption();
-
+        // 提取所有月份和平台
         const months = [...new Set(rawData.map((item) => item.month))].sort();
         const platforms = [...new Set(rawData.map((item) => item.platform))];
 
@@ -302,7 +302,7 @@ const { formatCurrency } = MnemosyneUtils;
                     fillerColor: '#D3CCC0',
                     handleSize: 0,
                     showDetail: false,
-            },
+                },
             ],
 
             legend: {
@@ -314,14 +314,15 @@ const { formatCurrency } = MnemosyneUtils;
                 },
             },
 
-            grid: { 
-                left: chartAreaLeft, 
-                right: chartAreaRight, 
-                bottom: '25%', 
-                containLabel: false 
+            grid: {
+                left: chartAreaLeft,
+                right: chartAreaRight,
+                bottom: '25%',
+                containLabel: false
             },
 
             xAxis: {
+                triggerEvent: true,
                 type: 'category',
                 data: months,
                 axisLine: { lineStyle: { color: borderColor } },
@@ -345,26 +346,40 @@ const { formatCurrency } = MnemosyneUtils;
         chart.setOption(baseOption);
         chart.setOption(specificOption);
 
-        // 点击事件处理
-        const zr = chart.getZr();
-        zr.off('click');
-        zr.on('click', function (params) {
+        // 鼠标样式逻辑
+        chart.getZr().on('mousemove', function (params) {
             const pointInPixel = [params.offsetX, params.offsetY];
-            if (!chart.containPixel('grid', pointInPixel)) return;
 
-            const xIndex = chart.convertFromPixel({ seriesIndex: 0 }, pointInPixel)[0];
-            const clickedMonth = months[xIndex];
-            if (!clickedMonth) return;
+            // 检查鼠标是否在网格 (grid) 内部
+            if (chart.containPixel('grid', pointInPixel)) {
+                chart.getZr().setCursorStyle('pointer');
+            } else {
+                chart.getZr().setCursorStyle('default');
+            }
+        });
 
-            const monthData = rawData.filter((d) => d.month === clickedMonth);
-            let total = 0;
-            const platformsData = monthData.map((d) => {
-                total += d.totalAmount;
-                return { name: d.platform, value: d.totalAmount };
-            });
+        // 鼠标点击跳转逻辑
+        chart.getZr().on('click', function (params) {
+            // 获取点击位置的像素坐标
+            const pointInPixel = [params.offsetX, params.offsetY];
 
-            if (typeof onMonthSelected === 'function') {
-                onMonthSelected({ month: clickedMonth, platforms: platformsData, total: total });
+            // 检查点击是否落在直角坐标系 (grid) 内部
+            if (chart.containPixel('grid', pointInPixel)) {
+                // 将像素坐标转换为逻辑坐标（即数据索引）
+                // [xIndex, yValue]
+                const xIndex = chart.convertFromPixel({ seriesIndex: 0 }, pointInPixel)[0];
+
+                // 从之前的 months 数组中通过索引获取月份字符串
+                const category = months[xIndex];
+
+                if (category) {
+                    const ymdMatch = String(category).match(/^(\d{4})[-\/]?(\d{1,2})$/);
+                    if (ymdMatch) {
+                        const year = ymdMatch[1];
+                        const monthStr = ymdMatch[2].padStart(2, '0');
+                        window.location.href = `month_detail.html?month=${year}-${monthStr}`;
+                    }
+                }
             }
         });
 
@@ -445,10 +460,10 @@ const { formatCurrency } = MnemosyneUtils;
                 },
             ],
 
-            grid: { 
-                left: chartAreaLeft, 
-                right: chartAreaRight, 
-                bottom: '25%', 
+            grid: {
+                left: chartAreaLeft,
+                right: chartAreaRight,
+                bottom: '25%',
                 containLabel: false,
             },
 
@@ -521,11 +536,11 @@ const { formatCurrency } = MnemosyneUtils;
             year: string
         */
         const fireflyPalette = [
-        '#dcefef', // 极浅绿
-        '#d4ebeb', // 浅薄荷
-        '#8fcaca', // 中薄荷
-        '#4ea5a5', // 深青色
-        '#2d6060'  // 墨绿色
+            '#dcefef', // 极浅绿
+            '#d4ebeb', // 浅薄荷
+            '#8fcaca', // 中薄荷
+            '#4ea5a5', // 深青色
+            '#2d6060'  // 墨绿色
         ];
 
         const chart = resetChartInstance(element);
@@ -599,7 +614,7 @@ const { formatCurrency } = MnemosyneUtils;
                 text: ['High', 'Low'],
                 pieces: [
                     { gt: 0, lte: 6800, color: '#FFB100' },
-                    { gt: 6800, lte: 19800, color:'#FF8C00'  },
+                    { gt: 6800, lte: 19800, color: '#FF8C00' },
                     { gt: 19800, lte: 64800, color: '#F1530E' },
                     { gt: 64800, color: '#E31A1C' }
                 ],
@@ -671,7 +686,7 @@ const { formatCurrency } = MnemosyneUtils;
                         const platform = p.seriesName;
                         const found = rawData.find(d => d.month === parseInt(month) && d.platform === platform);
                         const amount = found ? found.totalAmount : 0;
-                        
+
                         html += `
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; min-width:200px;">
                                 <div style="display:flex; align-items:center;">
@@ -695,11 +710,11 @@ const { formatCurrency } = MnemosyneUtils;
                 textStyle: { fontFamily: fontPrimary },
                 data: platforms
             },
-            grid: { 
-                left: chartAreaLeft, 
-                right: chartAreaRight, 
+            grid: {
+                left: chartAreaLeft,
+                right: chartAreaRight,
                 bottom: '25%',
-                containLabel: false 
+                containLabel: false
             },
             xAxis: {
                 type: 'category',
@@ -718,7 +733,7 @@ const { formatCurrency } = MnemosyneUtils;
                 axisLabel: {
                     fontFamily: fontPrimary,
                     formatter: '{value}%',
-                    color: mutedTextColor,    
+                    color: mutedTextColor,
                 },
             },
             series: series,
