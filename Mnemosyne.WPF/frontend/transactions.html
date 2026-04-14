@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="EN">
+<head>
+  <meta charset="UTF-8">
+  <title>Transactions - Mnemosyne</title>
+  <script src="./assets/vendor/vue.global.prod.js"></script>
+  <link rel="stylesheet" href="./style.css">
+  <style>
+    /* --- 审计表单弹窗基础 & 布局 --- */
+    .audit-modal-content {
+      background: #FDFBF7;
+      border: 2px solid var(--color-text-main);
+      width: 600px;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 0;
+      scrollbar-width: none;
+    }
+
+    .audit-form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--color-text-main);
+      padding: 20px 30px;
+      background: var(--color-bg-dark);
+    }
+
+    .header-titles h2 {
+      margin: 0 0 5px 0;
+      font-size: var(--fs-xl);
+    }
+
+    .header-titles .subtitle {
+      font-size: var(--fs-xs);
+      color: var(--color-text-muted);
+      letter-spacing: 0.1em;
+    }
+
+    .header-stamp {
+      border: 2px solid #8B0000;
+      color: #8B0000;
+      padding: 4px 8px;
+      font-weight: 700;
+      transform: rotate(5deg);
+      opacity: 0.8
+    }
+
+    .audit-target-summary {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px 30px;
+      background: rgba(0,0,0,0.03);
+      border-bottom: 1px dashed var(--color-border);
+      font-size: var(--fs-sm);
+    }
+
+    .audit-form-body {
+      padding: 20px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 25px
+    }
+
+    /* 问题标题 */
+    .form-question > label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: var(--fs-md);
+      line-height: 1.4
+    }
+
+    /* --- 量表组件需用到的样式 --- */
+    .scale-container {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      padding: 15px
+    }
+
+    .scale-group {
+      display: flex;
+      justify-content: space-between;
+      position: relative
+    }
+
+      .scale-group::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 20px;
+        right: 20px;
+        height: 1px;
+        background: var(--color-border);
+        z-index: 1
+      }
+
+    .scale-option {
+      position: relative;
+      z-index: 2;
+      cursor: pointer
+    }
+
+      .scale-option input {
+        display: none
+      }
+
+      .scale-option span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: var(--color-bg);
+        border: 2px solid var(--color-text-main);
+        border-radius: 50%;
+        font-weight: bold;
+        transition: all .2s
+      }
+
+      .scale-option input:checked + span {
+        background: var(--color-text-main);
+        color: var(--color-bg);
+        transform: scale(1.1);
+        box-shadow: 0 0 0 3px rgba(0,0,0,0.1)
+      }
+
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      color: var(--color-text-main)
+    }
+
+    .binary-group {
+      display: flex;
+      border: 2px solid var(--color-text-main)
+    }
+
+    .binary-option {
+      flex: 1;
+      cursor: pointer
+    }
+
+      .binary-option input {
+        display: none
+      }
+
+    .binary-btn {
+      display: block;
+      text-align: center;
+      padding: 12px 0;
+      font-weight: 600;
+      background: var(--color-bg);
+      color: var(--color-text-main);
+      transition: background .2s, color .2s
+    }
+
+    .binary-option:first-child .binary-btn {
+      border-right: 2px solid var(--color-text-main)
+    }
+
+    .binary-option input:checked + .binary-btn {
+      background: var(--color-text-main);
+      color: var(--color-bg)
+    }
+
+    .audit-section-group {
+      display: flex;
+      flex-direction: column;
+      gap: 25px
+    }
+
+    /* 文本域 */
+    .audit-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--color-border);
+      background: var(--color-bg);
+      font-family: inherit;
+      resize: vertical
+    }
+
+      .audit-textarea:focus {
+        outline: none;
+        border-color: var(--color-text-main)
+      }
+
+    /* 底部 */
+    .audit-modal-actions {
+      padding: 20px 30px;
+      background: var(--color-bg-dark);
+      border-top: 1px solid var(--color-border)
+    }
+
+    .warning-text {
+      font-size: var(--fs-sm);
+      color: #8B0000;
+      margin: 0 0 15px 0;
+      font-weight: bold
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px
+    }
+
+    /* report */
+    .disco-audit-panel {
+      margin-top: 40px;
+      padding: 20px 30px;
+      background: #EBE6DE;
+      border-left: 6px solid #7A7A7A;
+      transition: all 0.5s ease;
+      font-family: var(--font-primary);
+    }
+
+    .skill-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 15px;
+    }
+
+    .skill-name {
+      font-size: var(--fs-lg);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .skill-critique {
+      font-size: var(--fs-md);
+      line-height: 1.6;
+      margin-bottom: var(--space-1_6);
+      color: var(--color-text-main);
+      min-height: 3em;
+    }
+
+    .document-gauge {
+      padding-top: 5px;
+    }
+
+    .gauge-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--color-text-muted);
+      font-family: 'Courier New', monospace;
+      margin-bottom: 2px;
+    }
+
+    .gauge-line {
+      position: relative;
+      padding-top: 5px;
+    }
+
+    /* 游标定位 */
+    .gauge-marker {
+      position: absolute;
+      top: -10px;
+      transform: translateX(-50%);
+      color: var(--color-text-main);
+      font-size: 1.2rem;
+      transition: left 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      z-index: 2;
+    }
+
+    /* 刻度线 */
+    .gauge-ticks {
+      width: 100%;
+      font-family: 'Courier New', monospace;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #B3A894;
+      text-align: justify;
+      text-align-last: justify;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <div class="modal-overlay" id="auditModal">
+      <div class="audit-modal-content">
+
+        <div class="audit-form-header">
+          <div class="header-titles">
+            <h2>采购审批申请单</h2>
+            <div class="subtitle">FORM-72H: PURCHASE AUDIT APPLICATION</div>
+          </div>
+          <div class="header-stamp">BUREAU OF AUDIT</div>
+        </div>
+
+        <div class="audit-target-summary">
+          <span>拟购项目：<b>某款高精尖电子废料</b></span>
+          <span>申报金额：<b>¥ 1,299.00</b></span>
+        </div>
+
+        <div class="audit-form-body">
+          <template v-for="section in formSections" :key="section.sectionId">
+            <div class="audit-section-group" v-if="!section.showIf || section.showIf(auditForm)">
+              <template v-for="q in section.questions" :key="q.key">
+                <div class="form-question" v-if="!q.showIf || q.showIf(auditForm)">
+                  <label>{{ q.title }}</label>
+
+                  <audit-scale-five v-if="q.type === 'five'"
+                                    v-model="auditForm[q.key]"
+                                    :name="q.key"
+                                    :label-left="q.labelLeft"
+                                    :label-right="q.labelRight"></audit-scale-five>
+
+                  <audit-scale-binary v-else-if="q.type === 'binary'"
+                                      v-model="auditForm[q.key]"
+                                      :name="q.key"
+                                      :true-label="q.labelLeft"
+                                      :false-label="q.labelRight"></audit-scale-binary>
+
+                  <textarea v-else-if="q.type === 'text'"
+                            v-model="auditForm[q.key]"
+                            class="audit-textarea"
+                            rows="2"
+                            :placeholder="q.placeholder"></textarea>
+                </div>
+              </template>
+            </div>
+          </template>
+        </div>
+
+        <div class="disco-audit-panel" :style="{ borderLeftColor: scoreAssessment.color }">
+          <div class="skill-header">
+            <span class="skill-name" :style="{ color: scoreAssessment.color }">
+              [{{ riskScore }}]  {{ scoreAssessment.level }}
+            </span>
+          </div>
+
+          <div class="skill-critique">
+            {{ scoreAssessment.text }}
+          </div>
+
+          <div class="document-gauge">
+            <div class="gauge-labels">
+              <span>SAFE</span>
+              <span>WARNING</span>
+              <span>DANGER</span>
+              <span>CRITICAL</span>
+            </div>
+            <div class="gauge-line">
+              <div class="gauge-marker" :style="{ left: Math.min(100, (riskScore / 50) * 100) + '%', color: scoreAssessment.color }">
+                ▼
+              </div>
+              <div class="gauge-ticks">
+                | · · · · | · · · · | · · · · | · · · · | · · · · | · · · · |
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="audit-modal-actions">
+          <p class="warning-text">※ 提交后，该项目将进入72小时公示期。</p>
+          <div class="action-buttons">
+            <button class="btn btn-default">放弃审计</button>
+            <button class="btn btn-primary" style="background: #1C1C1C; color: #F4F0EA;">提交审计</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/utils.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/charts.js"></script>
+  <script src="./js/components.js"></script>
+  <script src="./js/transactions.js"></script>
+</body>
+</html>
