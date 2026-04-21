@@ -13,160 +13,26 @@ createApp({
         const colorMotorics = (rootStyle.getPropertyValue('--color-motorics')).trim();
         const mutedTextColor = (rootStyle.getPropertyValue('--color-text-muted')).trim();
 
-        /**
-         * formSections 的结构说明
-         * @typedef {Object} Question
-         * @property {string} key
-         * @property {string} type
-         * @property {string} title
-         * @property {*} defaultValue
-         * @property {function} calcScore
-         *
-         * @typedef {Object} Section
-         * @property {string} sectionId
-         * @property {function} [showIf]
-         * @property {Question[]} questions
-         */
+        const PLATFORM_OPTIONS = window.PLATFORM_OPTIONS;
+        /**控制问卷是否显示 */
+        const showAuditForm = ref(true);
 
-        /**
-         * 计分原则：分数越高，越属于“异化/冲动/浪费”的消费。
-         * 五分量表 (val: 1-5)：正向问题直接取 val；反向问题取 6 - val。
-         * 二元开关 (val: true/false)：错误选项给高分，正确选 0 分。
-         */
+        const openAuditForm = () => {
+            showAuditForm.value = true;
+        };
 
-        /** @type {Question[]} */
-        const defaultQuestion = [
-            {
-                key: 'q1', type: 'five',
-                title: 'QD1 此次购买的核心动机是？',
-                labelLeft: '解决明确生存/工作问题', labelRight: '仅仅是“买了感觉会更好”',
-                defaultValue: null,
-                calcScore: (val) => val || 0
-            },
-            {
-                key: 'q2', type: 'binary',
-                title: 'QD2 如果今天不买，会在 72 小时内严重影响你的正常生活吗？',
-                defaultValue: null,
-                calcScore: (val) => val === false ? 5 : 0
-            },
-            {
-                key: 'q3', type: 'five',
-                title: 'QD3 该商品的使用价值是否已被你当前拥有的物品覆盖？',
-                labelLeft: '无可替代', labelRight: '完全覆盖',
-                defaultValue: null,
-                calcScore: (val) => val || 0
-            },
-            {
-                key: 'q4', type: 'five',
-                title: 'QD4 这个购买想法已经持续了多久？',
-                labelLeft: '1小时以内', labelRight: '7天以上',
-                defaultValue: null,
-                calcScore: (val) => val ? (6 - val) : 0
-            },
-            {
-                key: 'q5', type: 'binary',
-                title: 'QD5 如果必须为它额外工作来填补账单，你还会买吗？',
-                defaultValue: null,
-                calcScore: (val) => val === false ? 3 : 0
-            },
-            {
-                key: 'q6', type: 'binary',
-                title: 'QD6 是否存在成本更低的替代方案，且你已经尝试过？',
-                defaultValue: null,
-                calcScore: (val) => val === false ? 3 : 0
-            },
-            {
-                key: 'q7', type: 'five',
-                title: 'QD7 你在多大程度上是在为品牌溢价和身份标签付费？',
-                labelLeft: '纯粹实用功能', labelRight: '纯粹社交景观',
-                defaultValue: null,
-                calcScore: (val) => val || 0
-            },
-            {
-                key: 'q8', type: 'binary',
-                title: 'QD8 如果没有任何人会知道你买了它，你还会买吗？',
-                defaultValue: null,
-                calcScore: (val) => val === false ? 5 : 0,
-                showIf: (form) => form['q7'] >= 3
-            },
-            {
-                key: 'q9', type: 'five',
-                title: 'QD9 你当前已经拥有多少个同类或高度相似的物品？',
-                labelLeft: '绝无仅有', labelRight: '泛滥成灾',
-                defaultValue: null,
-                calcScore: (val) => val || 0
-            },
-            {
-                key: 'q10', type: 'five',
-                title: 'QD10 新增该商品为你带来的实际效用提升是？',
-                labelLeft: '产生质变', labelRight: '几乎没有',
-                defaultValue: null,
-                calcScore: (val) => val || 0
-            },
-            {
-                key: 'q11', type: 'binary',
-                title: 'QD11 这笔消费是否会带来未来回报（知识 / 技能 / 生产力）？',
-                defaultValue: null,
-                calcScore: (val) => val === true ? -5 : 5
-            },
-        ];
+        const closeAuditForm = () => {
+            showAuditForm.value = false;
+        };
 
-        // 游戏/数字内购问题
-        /** @type {Question[]} */
-        const gameQuestion = [
-            {
-                key: 'g1', type: 'binary',
-                title: 'QG1 你是否因为限时/稀有/绝版而产生购买冲动？',
-                defaultValue: null,
-                calcScore: (val) => val === true ? 8 : 0
-            },
-            {
-                key: 'g2', type: 'binary',
-                title: 'QG2 这笔消费是否用于追赶进度/避免落后他人?',
-                defaultValue: null,
-                calcScore: (val) => val === true ? 8 : 0
-            },
-            {
-                key: 'g3', type: 'binary',
-                title: 'QG3 此次消费是否受到沉没成本的影响？',
-                defaultValue: null,
-                calcScore: (val) => val === true ? 8 : 0
-            },
-            {
-                key: 'g4', type: 'binary',
-                title: 'QG4 这笔消费是否具有赌博式不确定性（如抽卡/开箱）？',
-                defaultValue: null,
-                calcScore: (val) => val === true ? 8 : 0
-            }
-        ];
-
-        /** @type {Section[]} */
-        const formSections = [
-            {
-                sectionId: 'basicInfo',
-                questions: [
-                    {
-                        key: 'b1', type: 'binary',
-                        title: 'QB1 这是否是一笔数字增值/虚拟商品支出？',
-                        defaultValue: null,
-                        calcScore: (val) => 0 // 路由问题，本身不产生分数
-                    },
-                ]
-            },
-            {
-                sectionId: 'default',
-                questions: defaultQuestion,
-                showIf: (form) => form['b1'] === false,
-            },
-            {
-                sectionId: 'game',
-                questions: gameQuestion,
-                showIf: (form) => form['b1'] === true,
-            }
-        ];
+        const formSections = window.MnemosyneQuestions;
 
         /** 审核表单响应式对象 */
-        const auditForm = reactive({});
+        const auditForm = reactive({
+            itemName: '',
+            platform: PLATFORM_OPTIONS[0],
+            amount: null,
+        });
         /**
          * 初始化表单字段为默认值
          */
@@ -201,26 +67,41 @@ createApp({
                     // 1. 收集清洗后的数据
                     result.filteredData[q.key] = val;
 
-                    // 2. 累加分数 (需确保有 calcScore 方法且值已选择)
+                    // 2. 累加分数
                     if (q.calcScore && val !== null && val !== undefined && val !== 0 && val !== '') {
                         result.score += q.calcScore(val);
                     }
-                    result.score = Math.max(result.score, 0);
                 });
             });
-
+            result.score = Math.max(0, result.score);
             return result;
         });
 
         // 立即初始化表单
         initForm();
+        /**
+         * 检查是否所有问题都未被填写
+         * @returns {boolean}
+         */
+        const isAllQuestionsEmpty = () => {
+            for (const section of formSections) {
+                for (const q of section.questions) {
+                    const val = auditForm[q.key];
+                    if (val !== null && val !== undefined && val !== '') {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        };
         /** 计算参考分数 */
         const riskScore = computed(() => auditState.value.score);
 
         const scoreAssessment = computed(() => {
             const score = riskScore.value;
 
-            if (score === 0 && auditForm['b1'] === null) {
+            // 如果所有题目都未被填写，则展示未开始状态文案
+            if (isAllQuestionsEmpty()) {
                 return {
                     level: "边缘系统 Limbic System",
                     text: "页面是一片雪白。欲望还未被具象化。某种情绪在远处酝酿，像雾一样，流动而模糊。你还不确定自己想要什么，但你*隐约*感觉那会让你好受一点。仅此而已。",
@@ -247,7 +128,7 @@ createApp({
             if (score < 36) {
                 return {
                     level: "通情达理 Empathy",
-                    text: "一阵潮湿、冰冷的悲伤像涨潮的海水一样漫过你的胸腔。你并不是真的渴望这个工业制品。你只是太累了。你正试图用一叠叠标着数字的纸片，去填塞你灵魂深处那个永不满足的空洞。",
+                    text: "一阵潮湿、冰冷的悲伤像涨潮的海水一样漫过你的胸腔。你并不是真的渴望这个工业制品。你只是太累了。你正试图用一叠叠印着虚假面额的废纸，去填塞你灵魂深处那个永不满足的空洞。",
                     color: colorPsyche
                 };
             }
@@ -262,6 +143,9 @@ createApp({
         const totalRiskScore = computed(() => riskScore.value);
 
         return {
+            PLATFORM_OPTIONS,
+            showAuditForm,
+            closeAuditForm,
             formSections,
             auditState,
             auditForm,

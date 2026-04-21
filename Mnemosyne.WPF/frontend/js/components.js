@@ -107,21 +107,21 @@
                         <input 
                             type="radio" 
                             :name="name" 
-                            :value="trueValue" 
-                            :checked="modelValue === trueValue"
-                            @change="$emit('update:modelValue', trueValue)"
-                        >
-                        <span class="binary-btn">{{ trueLabel }}</span>
-                    </label>
-                    <label class="binary-option">
-                        <input 
-                            type="radio" 
-                            :name="name" 
                             :value="falseValue" 
                             :checked="modelValue === falseValue"
                             @change="$emit('update:modelValue', falseValue)"
                         >
                         <span class="binary-btn">{{ falseLabel }}</span>
+                    </label>
+                    <label class="binary-option">
+                        <input
+                            type="radio"
+                            :name="name"
+                            :value="trueValue"
+                            :checked="modelValue === trueValue"
+                            @change="$emit('update:modelValue', trueValue)"
+                        >
+                        <span class="binary-btn">{{ trueLabel }}</span>
                     </label>
                 </div>
             `

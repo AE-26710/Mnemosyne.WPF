@@ -4,8 +4,8 @@
     // 类似于C++的 using MnemosyneUtils::formatCurrency;
     // 这样就可以直接使用 formatCurrency() 而不是 MnemosyneUtils.formatCurrency()
     const { formatCurrency, getRateClass, toPieData, yuanToCents, centsToYuan } = MnemosyneUtils;
-    
-    const PLATFORM_OPTIONS = ['Steam', '崩坏：星穹铁道', '崩坏3', '战争雷霆'];
+
+    const PLATFORM_OPTIONS = window.PLATFORM_OPTIONS;
 
     createApp({
         setup() {

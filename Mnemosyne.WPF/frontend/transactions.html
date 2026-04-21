@@ -6,6 +6,55 @@
   <script src="./assets/vendor/vue.global.prod.js"></script>
   <link rel="stylesheet" href="./style.css">
   <style>
+    /* 你知道吗组件专属样式 */
+    .did-you-know-card {
+      background-color: var(--color-bg-dark);
+      border: 1px dashed var(--color-text-main);
+      padding: var(--space-1_5);
+      margin-bottom: var(--space-3);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      position: relative;
+      overflow: hidden;
+    }
+
+      .did-you-know-card::before {
+        content: "IDK";
+        position: absolute;
+        right: -10px;
+        bottom: -10px;
+        font-size: 6rem;
+        font-weight: 900;
+        color: rgba(0, 0, 0, 0.03);
+        font-family: var(--font-primary);
+        pointer-events: none;
+      }
+
+    .idk-icon {
+      font-size: var(--fs-xl);
+      color: #8B0000; /* 使用深红色点缀 */
+    }
+
+    .idk-content {
+      flex: 1;
+    }
+
+    .idk-label {
+      font-size: var(--fs-xs);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .idk-text {
+      font-size: var(--fs-md);
+      line-height: 1.5;
+      color: var(--color-text-main);
+      font-style: italic; /* 增加一点阅读趣味感 */
+    }
+
     /* --- 审计表单弹窗基础 & 布局 --- */
     .audit-modal-content {
       background: #FDFBF7;
@@ -14,7 +63,7 @@
       max-width: 90vw;
       max-height: 90vh;
       overflow-y: auto;
-      padding: 0;
+      padding: var(--space-0);
       scrollbar-width: none;
     }
 
@@ -23,12 +72,12 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 2px solid var(--color-text-main);
-      padding: 20px 30px;
+      padding: var(--space-2) var(--space-3);
       background: var(--color-bg-dark);
     }
 
     .header-titles h2 {
-      margin: 0 0 5px 0;
+      margin: var(--space-0) var(--space-0) var(--space-0_5) var(--space-0);
       font-size: var(--fs-xl);
     }
 
@@ -41,7 +90,7 @@
     .header-stamp {
       border: 2px solid #8B0000;
       color: #8B0000;
-      padding: 4px 8px;
+      padding: var(--space-0_5) var(--space-0_8);
       font-weight: 700;
       transform: rotate(5deg);
       opacity: 0.8
@@ -50,33 +99,40 @@
     .audit-target-summary {
       display: flex;
       justify-content: space-between;
-      padding: 15px 30px;
-      background: rgba(0,0,0,0.03);
-      border-bottom: 1px dashed var(--color-border);
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 2px dashed var(--color-border);
       font-size: var(--fs-sm);
     }
 
     .audit-form-body {
-      padding: 20px 30px;
+      padding: var(--space-0) var(--space-3);
       display: flex;
       flex-direction: column;
-      gap: 25px
     }
 
     /* 问题标题 */
-    .form-question > label {
+    .form-question-title {
       display: block;
       font-weight: 600;
-      margin-bottom: 12px;
+      margin-bottom: var(--space-1);
       font-size: var(--fs-md);
       line-height: 1.4
+    }
+
+    .form-question > .question-description {
+      font-size: var(--fs-sm);
+      color: var(--color-text-muted);
+      margin-top: calc(-1 * var(--space-0_5));
+      margin-bottom: var(--space-1);
+      line-height: 1.5;
+      font-family: var(--font-primary);
     }
 
     /* --- 量表组件需用到的样式 --- */
     .scale-container {
       background: var(--color-bg);
       border: 1px solid var(--color-border);
-      padding: 15px
+      padding: var(--space-2);
     }
 
     .scale-group {
@@ -89,8 +145,8 @@
         content: '';
         position: absolute;
         top: 50%;
-        left: 20px;
-        right: 20px;
+        left: var(--space-2);
+        right: var(--space-2);
         height: 1px;
         background: var(--color-border);
         z-index: 1
@@ -129,7 +185,7 @@
     .scale-labels {
       display: flex;
       justify-content: space-between;
-      margin-top: 10px;
+      margin-top: var(--space-1);
       font-size: var(--fs-xs);
       font-weight: 600;
       color: var(--color-text-main)
@@ -152,7 +208,7 @@
     .binary-btn {
       display: block;
       text-align: center;
-      padding: 12px 0;
+      padding: var(--space-1_2) 0;
       font-weight: 600;
       background: var(--color-bg);
       color: var(--color-text-main);
@@ -171,13 +227,12 @@
     .audit-section-group {
       display: flex;
       flex-direction: column;
-      gap: 25px
     }
 
     /* 文本域 */
     .audit-textarea {
       width: 100%;
-      padding: 12px;
+      padding: var(--space-1_2);
       border: 1px solid var(--color-border);
       background: var(--color-bg);
       font-family: inherit;
@@ -191,28 +246,26 @@
 
     /* 底部 */
     .audit-modal-actions {
-      padding: 20px 30px;
-      background: var(--color-bg-dark);
-      border-top: 1px solid var(--color-border)
+      padding: var(--space-2) var(--space-3) var(--space-3);
     }
 
     .warning-text {
       font-size: var(--fs-sm);
       color: #8B0000;
-      margin: 0 0 15px 0;
+      margin: var(--space-0) var(--space-0) var(--space-1_5) var(--space-0);
       font-weight: bold
     }
 
     .action-buttons {
       display: flex;
       justify-content: flex-end;
-      gap: 15px
+      gap: var(--space-2);
     }
 
     /* report */
     .disco-audit-panel {
-      margin-top: 40px;
-      padding: 20px 30px;
+      margin-top: var(--space-3);
+      padding: var(--space-2) var(--space-3);
       background: #EBE6DE;
       border-left: 6px solid #7A7A7A;
       transition: all 0.5s ease;
@@ -223,7 +276,7 @@
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 15px;
+      margin-bottom: var(--space-1_5);
     }
 
     .skill-name {
@@ -241,7 +294,7 @@
     }
 
     .document-gauge {
-      padding-top: 5px;
+      padding-top: var(--space-0_5);
     }
 
     .gauge-labels {
@@ -251,18 +304,18 @@
       font-weight: bold;
       color: var(--color-text-muted);
       font-family: 'Courier New', monospace;
-      margin-bottom: 2px;
+      margin-bottom: var(--space-0_2);
     }
 
     .gauge-line {
       position: relative;
-      padding-top: 5px;
+      padding-top: var(--space-0_5);
     }
 
     /* 游标定位 */
     .gauge-marker {
       position: absolute;
-      top: -10px;
+      top: calc(-1 * var(--space-1));
       transform: translateX(-50%);
       color: var(--color-text-main);
       font-size: 1.2rem;
@@ -282,25 +335,45 @@
       white-space: nowrap;
       user-select: none;
     }
-
   </style>
 </head>
 <body>
   <div id="app" class="container">
-    <div class="modal-overlay" id="auditModal">
+    <header>
+      <div>
+        <h1>Transaction Ledger</h1>
+      </div>
+    </header>
+
+    <div id="funFactComponent" class="did-you-know-card" onclick="refreshFact()" style="cursor: pointer;">
+      <div class="idk-icon">✦</div>
+      <div class="idk-content">
+        <div class="idk-label">你知道吗？ / DID YOU KNOW?</div>
+        <div id="factDisplay" class="idk-text">正在计算数据...</div>
+      </div>
+    </div>
+
+    <div v-if="showAuditForm" class="modal-overlay" id="auditModal">
       <div class="audit-modal-content">
 
         <div class="audit-form-header">
           <div class="header-titles">
             <h2>采购审批申请单</h2>
-            <div class="subtitle">FORM-72H: PURCHASE AUDIT APPLICATION</div>
+            <div class="subtitle">FORM-72H-2: PURCHASE AUDIT APPLICATION</div>
           </div>
           <div class="header-stamp">BUREAU OF AUDIT</div>
         </div>
 
-        <div class="audit-target-summary">
-          <span>拟购项目：<b>某款高精尖电子废料</b></span>
-          <span>申报金额：<b>¥ 1,299.00</b></span>
+        <div class="audit-target-summary" style="display: flex; gap: var(--space-2); align-items: flex-end; flex-wrap: wrap;">
+          <div class="form-group" style="flex: 2; min-width: 200px; margin-top: var(--space-0);">
+            <label class="form-question-title">拟购项目</label>
+            <input type="text" v-model="auditForm.itemName">
+          </div>
+
+          <div class="form-group" style="flex: 1; min-width: 120px; margin-top: var(--space-0);">
+            <label class="form-question-title">申报金额 (¥)</label>
+            <input type="number" v-model="auditForm.amount">
+          </div>
         </div>
 
         <div class="audit-form-body">
@@ -308,7 +381,8 @@
             <div class="audit-section-group" v-if="!section.showIf || section.showIf(auditForm)">
               <template v-for="q in section.questions" :key="q.key">
                 <div class="form-question" v-if="!q.showIf || q.showIf(auditForm)">
-                  <label>{{ q.title }}</label>
+                  <p class="form-question-title">{{ q.title }}</p>
+                  <p v-if="q.description" class="question-description">{{ q.description }}</p>
 
                   <audit-scale-five v-if="q.type === 'five'"
                                     v-model="auditForm[q.key]"
@@ -365,8 +439,8 @@
         <div class="audit-modal-actions">
           <p class="warning-text">※ 提交后，该项目将进入72小时公示期。</p>
           <div class="action-buttons">
-            <button class="btn btn-default">放弃审计</button>
-            <button class="btn btn-primary" style="background: #1C1C1C; color: #F4F0EA;">提交审计</button>
+            <button class="btn btn-default" @click="closeAuditForm">放弃审计</button>
+            <button class="btn btn-primary">提交审计</button>
           </div>
         </div>
       </div>
@@ -375,6 +449,7 @@
 
   <script src="./js/utils.js"></script>
   <script src="./js/api.js"></script>
+  <script src="./js/questions.js"></script>
   <script src="./js/charts.js"></script>
   <script src="./js/components.js"></script>
   <script src="./js/transactions.js"></script>
