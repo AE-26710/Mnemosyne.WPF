@@ -6,8 +6,8 @@
   <script src="./assets/vendor/vue.global.prod.js"></script>
   <link rel="stylesheet" href="./style.css">
   <style>
-    /* 你知道吗组件专属样式 */
-    .did-you-know-card {
+    /* Echo组件专属样式 */
+    .echo-card {
       background-color: var(--color-bg-dark);
       border: 1px dashed var(--color-text-main);
       padding: var(--space-1_5);
@@ -17,10 +17,11 @@
       gap: 15px;
       position: relative;
       overflow: hidden;
+      cursor: pointer;
     }
 
-      .did-you-know-card::before {
-        content: "IDK";
+      .echo-card::before {
+        content: "ECHOES";
         position: absolute;
         right: -10px;
         bottom: -10px;
@@ -52,7 +53,8 @@
       font-size: var(--fs-md);
       line-height: 1.5;
       color: var(--color-text-main);
-      font-style: italic; /* 增加一点阅读趣味感 */
+      font-style: italic;
+      transition: opacity 0.3s ease;
     }
 
     /* --- 审计表单弹窗基础 & 布局 --- */
@@ -345,11 +347,11 @@
       </div>
     </header>
 
-    <div id="funFactComponent" class="did-you-know-card" onclick="refreshFact()" style="cursor: pointer;">
+    <div id="echoesComponent" class="echo-card" @click="refreshEcho">
       <div class="idk-icon">✦</div>
       <div class="idk-content">
-        <div class="idk-label">你知道吗？ / DID YOU KNOW?</div>
-        <div id="factDisplay" class="idk-text">正在计算数据...</div>
+        <div class="idk-label">回声 / ECHOES</div>
+        <div class="idk-text" v-html="currentEchoHtml" :style="{ opacity: isEchoVisible ? 1 : 0 }"></div>
       </div>
     </div>
 
@@ -452,6 +454,7 @@
   <script src="./js/questions.js"></script>
   <script src="./js/charts.js"></script>
   <script src="./js/components.js"></script>
+  <script src="./js/echoes.js"></script>
   <script src="./js/transactions.js"></script>
 </body>
 </html>

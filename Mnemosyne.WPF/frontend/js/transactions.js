@@ -1,4 +1,4 @@
-const { createApp, ref, reactive, computed } = Vue;
+const { createApp, ref, reactive, computed, onMounted } = Vue;
 
 createApp({
     components: {
@@ -27,7 +27,35 @@ createApp({
 
         const formSections = window.MnemosyneQuestions;
 
-        /** 审核表单响应式对象 */
+        // --- Echo Logic ---
+        const mockMonthlyTotal = 256.50;
+        /** @type {{ template: (total: number) => string }[]} */
+        const echoes = window.MnemosyneEchoes || [{ template: () => '如果你看到这条消息，说明有错误发生。' }];
+
+        const currentEchoHtml = ref('');
+        const isEchoVisible = ref(true);
+        let currentEchoIndex = -1;
+
+        const refreshEcho = () => {
+            isEchoVisible.value = false;
+            setTimeout(() => {
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * echoes.length);
+                } while (newIndex === currentEchoIndex);
+
+                currentEchoIndex = newIndex;
+                const echo = echoes[currentEchoIndex];
+                currentEchoHtml.value = echo.template(mockMonthlyTotal);
+                isEchoVisible.value = true;
+            }, 200);
+        };
+
+        onMounted(() => {
+            refreshEcho();
+        });
+
+        /** 审计表单响应式对象 */
         const auditForm = reactive({
             itemName: '',
             platform: PLATFORM_OPTIONS[0],
@@ -151,7 +179,10 @@ createApp({
             auditForm,
             riskScore,
             scoreAssessment,
-            totalRiskScore
+            totalRiskScore,
+            currentEchoHtml,
+            isEchoVisible,
+            refreshEcho
         };
     }
 }).mount('#app');

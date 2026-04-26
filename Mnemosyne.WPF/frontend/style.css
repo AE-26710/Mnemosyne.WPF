@@ -96,6 +96,9 @@
     --color-text-muted: #7A7A7A;
     --color-border: #E2DCD0;
     --color-firefly: #8FCACA;
+    --color-raiden-mei: #4B0082;
+    --color-kafka: #9A66AF;
+    --color-makise-kurisu: #B63B40;
     --color-error: #BA1A1A;
     --color-intellect: #4EA7B9;
     --color-psyche: #6448B6;
@@ -109,7 +112,6 @@
     --fs-2xl: 3.2rem; /* 32px */
     --fs-3xl: 4.0rem; /* 40px */
     --font-primary: "ITC Avant Garde Std", "Source Han Serif CN", serif;
-
     /* Tailwind 风格 spacing token（基于 1rem = 10px） */
     --space-0: 0;
     --space-0_2: 0.2rem;
