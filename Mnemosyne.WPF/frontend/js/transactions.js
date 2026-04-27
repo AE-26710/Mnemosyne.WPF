@@ -1,4 +1,5 @@
 const { createApp, ref, reactive, computed, onMounted } = Vue;
+const { formatCurrency: formatExpenseCurrency, yuanToCents } = MnemosyneUtils;
 
 createApp({
     components: {
@@ -14,8 +15,170 @@ createApp({
         const mutedTextColor = (rootStyle.getPropertyValue('--color-text-muted')).trim();
 
         const PLATFORM_OPTIONS = window.PLATFORM_OPTIONS;
-        /**控制问卷是否显示 */
-        const showAuditForm = ref(true);
+        const records = ref([]);
+        const currentPage = ref(1);
+        const totalPages = ref(1);
+        const showModal = ref(false);
+        const showAuditForm = ref(false);
+        const isEditing = ref(false);
+        const editingId = ref(null);
+        const selectedPlatform = ref(PLATFORM_OPTIONS[0]);
+        const showDeleteConfirm = ref(false);
+        const pendingDeleteId = ref(null);
+        const formDate = ref({ year: '', month: '', day: '' });
+        const formData = ref({ itemName: '', platform: '', amount: '', tagsInput: '' });
+
+        const fetchRecords = async (page = 1) => {
+            try {
+                const json = await api.getExpenses(page, 10);
+                records.value = json.data;
+                currentPage.value = json.page;
+                totalPages.value = json.totalPages;
+            } catch (error) {
+                console.error('Failed to fetch records:', error);
+            }
+        };
+
+        const changePage = (newPage) => {
+            if (newPage >= 1 && newPage <= totalPages.value) {
+                fetchRecords(newPage);
+            }
+        };
+
+        const openForm = () => {
+            isEditing.value = false;
+            editingId.value = null;
+
+            const today = new Date();
+            formDate.value = {
+                year: today.getFullYear().toString(),
+                month: String(today.getMonth() + 1).padStart(2, '0'),
+                day: String(today.getDate()).padStart(2, '0'),
+            };
+
+            formData.value = {
+                itemName: '',
+                platform: PLATFORM_OPTIONS[0],
+                amount: '',
+                tagsInput: '',
+            };
+            selectedPlatform.value = PLATFORM_OPTIONS[0];
+            showModal.value = true;
+        };
+
+        const editItem = (item) => {
+            isEditing.value = true;
+            editingId.value = item.id;
+
+            let y = '';
+            let m = '';
+            let d = '';
+            if (item.expenseDate) {
+                const parts = item.expenseDate.split('-');
+                if (parts.length === 3) {
+                    [y, m, d] = parts;
+                }
+            }
+            formDate.value = { year: y, month: m, day: d };
+
+            formData.value = {
+                itemName: item.itemName,
+                platform: item.platform,
+                amount: formatExpenseCurrency(item.amount),
+                tagsInput: item.tagsList ? item.tagsList.join(',') : '',
+            };
+
+            selectedPlatform.value = PLATFORM_OPTIONS.includes(item.platform) ? item.platform : '__custom__';
+            showModal.value = true;
+        };
+
+        const onPlatformChange = () => {
+            if (selectedPlatform.value === '__custom__') {
+                if (PLATFORM_OPTIONS.includes(formData.value.platform)) {
+                    formData.value.platform = '';
+                }
+            } else {
+                formData.value.platform = selectedPlatform.value;
+            }
+        };
+
+        const closeForm = () => {
+            showModal.value = false;
+        };
+
+        const submitForm = async () => {
+            const strY = formDate.value.year;
+            const strM = formDate.value.month;
+            const strD = formDate.value.day;
+
+            if (!strY || !strM || !strD || isNaN(strY) || isNaN(strM) || isNaN(strD)) {
+                alert('请输入有效的年月日数字！');
+                return;
+            }
+
+            const y = parseInt(strY, 10);
+            const m = parseInt(strM, 10);
+            const d = parseInt(strD, 10);
+
+            const dateObj = new Date(y, m - 1, d);
+            if (dateObj.getFullYear() !== y || dateObj.getMonth() + 1 !== m || dateObj.getDate() !== d) {
+                alert('请输入正确有效的日期！');
+                return;
+            }
+
+            const finalDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+            const payload = {
+                expenseDate: finalDate,
+                itemName: formData.value.itemName,
+                platform: formData.value.platform,
+                amount: yuanToCents(formData.value.amount),
+                tags: formData.value.tagsInput
+                    ? formData.value.tagsInput
+                        .split(',')
+                        .map((t) => t.trim())
+                        .filter((t) => t)
+                    : [],
+            };
+
+            if (!Number.isFinite(payload.amount)) {
+                alert('请输入有效金额！');
+                return;
+            }
+
+            try {
+                if (isEditing.value) {
+                    await api.updateExpense(editingId.value, payload);
+                } else {
+                    await api.addExpense(payload);
+                }
+                closeForm();
+                fetchRecords(currentPage.value);
+            } catch (e) {
+                alert('保存失败: ' + e.message);
+            }
+        };
+
+        const deleteItem = async (id) => {
+            pendingDeleteId.value = id;
+            showDeleteConfirm.value = true;
+        };
+
+        const closeDeleteConfirm = () => {
+            showDeleteConfirm.value = false;
+            pendingDeleteId.value = null;
+        };
+
+        const confirmDelete = async () => {
+            if (pendingDeleteId.value == null) return;
+            try {
+                await api.deleteExpense(pendingDeleteId.value);
+                closeDeleteConfirm();
+                fetchRecords(currentPage.value);
+            } catch (e) {
+                alert('删除失败: ' + e.message);
+            }
+        };
 
         const openAuditForm = () => {
             showAuditForm.value = true;
@@ -53,6 +216,7 @@ createApp({
 
         onMounted(() => {
             refreshEcho();
+            fetchRecords(1);
         });
 
         /** 审计表单响应式对象 */
@@ -172,7 +336,29 @@ createApp({
 
         return {
             PLATFORM_OPTIONS,
+            records,
+            currentPage,
+            totalPages,
+            changePage,
+            formatCurrency: formatExpenseCurrency,
+            showModal,
+            isEditing,
+            editingId,
+            formDate,
+            formData,
+            platformOptions: PLATFORM_OPTIONS,
+            selectedPlatform,
+            showDeleteConfirm,
+            openForm,
+            editItem,
+            closeForm,
+            onPlatformChange,
+            submitForm,
+            deleteItem,
+            closeDeleteConfirm,
+            confirmDelete,
             showAuditForm,
+            openAuditForm,
             closeAuditForm,
             formSections,
             auditState,

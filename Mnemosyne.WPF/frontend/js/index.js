@@ -3,9 +3,7 @@
     // 从刚才提取的 utils 中解构需要的工具函数
     // 类似于C++的 using MnemosyneUtils::formatCurrency;
     // 这样就可以直接使用 formatCurrency() 而不是 MnemosyneUtils.formatCurrency()
-    const { formatCurrency, getRateClass, toPieData, yuanToCents, centsToYuan } = MnemosyneUtils;
-
-    const PLATFORM_OPTIONS = window.PLATFORM_OPTIONS;
+    const { formatCurrency, getRateClass, toPieData } = MnemosyneUtils;
 
     createApp({
         setup() {
@@ -51,38 +49,6 @@
                 }
             };
 
-            const records = ref([]);
-            const currentPage = ref(1);
-            const totalPages = ref(1);
-
-            /**
-             * 分页加载消费记录。
-             * @param {number} [page=1] 目标页码。
-             * @returns {Promise<void>}
-             */
-            const fetchRecords = async (page = 1) => {
-                try {
-                    const json = await api.getExpenses(page, 10);
-                    records.value = json.data;
-                    currentPage.value = json.page;
-                    totalPages.value = json.totalPages;
-                } catch (error) {
-                    console.error('Failed to fetch records:', error);
-                }
-            };
-
-            /**
-             * 切换分页到指定页。
-             * @param {number} newPage 目标页码。
-             * @returns {void}
-             */
-            const changePage = (newPage) => {
-                // 翻页
-                if (newPage >= 1 && newPage <= totalPages.value) {
-                    fetchRecords(newPage);
-                }
-            };
-
             /**
              * 初始化月度堆叠柱状图。
              * @returns {Promise<void>}
@@ -99,13 +65,6 @@
                     console.error('Failed to initialize bar chart:', error);
                 }
             };
-
-            const showModal = ref(false);
-            const isEditing = ref(false);
-            const editingId = ref(null);
-            const selectedPlatform = ref(PLATFORM_OPTIONS[0]);
-            const showDeleteConfirm = ref(false);
-            const pendingDeleteId = ref(null);
 
             const secretSequence = 'RmlyZWZseQ==';
             let currentSequence = '';
@@ -175,176 +134,12 @@
                 }
             };
 
-            const formDate = ref({ year: '', month: '', day: '' });
-            const formData = ref({ itemName: '', platform: '', amount: '', tagsInput: '' });
-
             /**
-             * 打开新增记录表单，并预填当前日期。
+             * 跳转到transactions页面
              * @returns {void}
              */
-            const openForm = () => {
-                isEditing.value = false;
-                editingId.value = null;
-
-                const today = new Date();
-                formDate.value = {
-                    year: today.getFullYear().toString(),
-                    month: String(today.getMonth() + 1).padStart(2, '0'),
-                    day: String(today.getDate()).padStart(2, '0'),
-                };
-
-                formData.value = {
-                    itemName: '',
-                    platform: PLATFORM_OPTIONS[0],
-                    amount: '',
-                    tagsInput: '',
-                };
-                selectedPlatform.value = PLATFORM_OPTIONS[0];
-                showModal.value = true;
-            };
-
-            /**
-             * 打开编辑表单并回填记录数据。
-             * @param {{ id: number, expenseDate?: string, itemName: string, platform: string, amount: number, tagsList?: string[] }} item 记录项。
-             * @returns {void}
-             */
-            const editItem = (item) => {
-                isEditing.value = true;
-                editingId.value = item.id;
-
-                let y = '',
-                    m = '',
-                    d = '';
-                if (item.expenseDate) {
-                    const parts = item.expenseDate.split('-');
-                    if (parts.length === 3) {
-                        [y, m, d] = parts;
-                    }
-                }
-                formDate.value = { year: y, month: m, day: d };
-
-                formData.value = {
-                    itemName: item.itemName,
-                    platform: item.platform,
-                    amount: formatCurrency(item.amount),
-                    tagsInput: item.tagsList ? item.tagsList.join(',') : '',
-                };
-
-                selectedPlatform.value = PLATFORM_OPTIONS.includes(item.platform) ? item.platform : '__custom__';
-                showModal.value = true;
-            };
-
-            /**
-             * 处理平台下拉框变更，支持自定义平台输入。
-             * @returns {void}
-             */
-            const onPlatformChange = () => {
-                if (selectedPlatform.value === '__custom__') {
-                    if (PLATFORM_OPTIONS.includes(formData.value.platform)) {
-                        formData.value.platform = '';
-                    }
-                } else {
-                    formData.value.platform = selectedPlatform.value;
-                }
-            };
-
-            /**
-             * 关闭新增/编辑表单。
-             * @returns {void}
-             */
-            const closeForm = () => {
-                showModal.value = false;
-            };
-
-            /**
-             * 校验表单并提交新增或更新请求。
-             * @returns {Promise<void>}
-             */
-            const submitForm = async () => {
-                const strY = formDate.value.year;
-                const strM = formDate.value.month;
-                const strD = formDate.value.day;
-
-                if (!strY || !strM || !strD || isNaN(strY) || isNaN(strM) || isNaN(strD)) {
-                    alert('请输入有效的年月日数字！');
-                    return;
-                }
-
-                const y = parseInt(strY, 10);
-                const m = parseInt(strM, 10);
-                const d = parseInt(strD, 10);
-
-                const dateObj = new Date(y, m - 1, d);
-                if (dateObj.getFullYear() !== y || dateObj.getMonth() + 1 !== m || dateObj.getDate() !== d) {
-                    alert('请输入正确有效的日期！');
-                    return;
-                }
-
-                const finalDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-
-                const payload = {
-                    expenseDate: finalDate,
-                    itemName: formData.value.itemName,
-                    platform: formData.value.platform,
-                    amount: yuanToCents(formData.value.amount),
-                    tags: formData.value.tagsInput
-                        ? formData.value.tagsInput
-                                .split(',')
-                                .map((t) => t.trim())
-                                .filter((t) => t)
-                        : [],
-                };
-
-                if (!Number.isFinite(payload.amount)) {
-                    alert('请输入有效金额！');
-                    return;
-                }
-
-                try {
-                    if (isEditing.value) {
-                        await api.updateExpense(editingId.value, payload);
-                    } else {
-                        await api.addExpense(payload);
-                    }
-                    closeForm();
-                    refreshAllData();
-                } catch (e) {
-                    alert('保存失败: ' + e.message);
-                }
-            };
-
-            /**
-             * 进入删除确认状态。
-             * @param {number} id 目标记录 ID。
-             * @returns {Promise<void>}
-             */
-            const deleteItem = async (id) => {
-                pendingDeleteId.value = id;
-                showDeleteConfirm.value = true;
-            };
-
-            /**
-             * 关闭删除确认弹窗。
-             * @returns {void}
-             */
-            const closeDeleteConfirm = () => {
-                showDeleteConfirm.value = false;
-                pendingDeleteId.value = null;
-            };
-
-            /**
-             * 确认删除选中的记录。
-             * @returns {Promise<void>}
-             */
-            const confirmDelete = async () => {
-                if (pendingDeleteId.value == null) return;
-                try {
-                    await api.deleteExpense(pendingDeleteId.value);
-                    closeDeleteConfirm();
-                    refreshAllData();
-                } catch (e) {
-                    alert('删除失败: ' + e.message);
-                }
+            const goToTransactions = () => {
+                window.location.href = 'transactions.html';
             };
 
             /**
@@ -378,48 +173,26 @@
             };
 
             /**
-             * 刷新仪表盘全部数据，包括 KPI、图表和列表。
+             * 刷新仪表盘全部数据，包括 KPI 和图表。
              * @returns {void}
              */
             const refreshAllData = () => {
                 fetchKPI();
                 initPieChart();
                 initBarChart();
-                fetchRecords(currentPage.value);
             };
 
             onMounted(() => {
                 fetchKPI();
                 initPieChart();
                 initBarChart();
-                fetchRecords(1);
                 window.addEventListener('keydown', handleGlobalKeydown);
             });
 
             return {
                 kpi,
-                records,
-                currentPage,
-                totalPages,
-                changePage,
                 getRateClass,
                 formatCurrency,
-                showModal,
-                isEditing,
-                editingId,
-                formDate,
-                formData,
-                platformOptions: PLATFORM_OPTIONS,
-                selectedPlatform,
-                showDeleteConfirm,
-                openForm,
-                editItem,
-                closeForm,
-                onPlatformChange,
-                submitForm,
-                deleteItem,
-                closeDeleteConfirm,
-                confirmDelete,
                 refreshAllData,
                 showSqlModal,
                 sqlQuery,
@@ -429,6 +202,7 @@
                 sqlSuccessMessage,
                 closeSqlModal,
                 executeSql,
+                goToTransactions,
                 goToCurrentMonthDetail,
                 goToCurrentYearDetail,
                 goToFireflyDetail

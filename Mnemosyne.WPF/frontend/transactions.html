@@ -34,7 +34,7 @@
 
     .idk-icon {
       font-size: var(--fs-xl);
-      color: #8B0000; /* 使用深红色点缀 */
+      color: #8B0000;
     }
 
     .idk-content {
@@ -55,6 +55,87 @@
       color: var(--color-text-main);
       font-style: italic;
       transition: opacity 0.3s ease;
+    }
+
+    /* 页面布局 */
+    .page-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1rem;
+      line-height: 1.2;
+      padding: 2px 6px;
+      border: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      margin-right: 4px;
+      margin-top: 4px;
+    }
+
+    .ledger-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-2);
+    }
+
+    .ledger-header h2 {
+      margin: var(--space-0);
+    }
+
+    .action-link {
+      color: #8B0000;
+      cursor: pointer;
+      text-decoration: underline;
+      white-space: nowrap;
+    }
+
+    .ledger-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    .ledger-table th,
+    .ledger-table td {
+      height: 56px;
+      line-height: 1.35;
+      vertical-align: middle;
+      box-sizing: border-box;
+    }
+
+    /* 列对齐设置 */
+    .ledger-table th:nth-child(4),
+    .ledger-table td:nth-child(4),
+    .ledger-table th:nth-child(5),
+    .ledger-table td:nth-child(5) {
+      text-align: right;
+    }
+
+    .ledger-table td:nth-child(1),
+    .ledger-table td:nth-child(3),
+    .ledger-table td:nth-child(4) {
+      white-space: nowrap;
+    }
+
+    .ledger-item-name {
+      line-height: 1.35;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ledger-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
     }
 
     /* --- 审计表单弹窗基础 & 布局 --- */
@@ -343,7 +424,7 @@
   <div id="app" class="container">
     <header>
       <div>
-        <h1>Transaction Ledger</h1>
+        <h1 onclick="window.location.href='./index.html'" style="cursor: pointer;">Transaction Ledger</h1>
       </div>
     </header>
 
@@ -355,6 +436,118 @@
       </div>
     </div>
 
+    <div class="page-layout">
+      <div class="records-section" style="border-top: none;">
+        <div class="ledger-header">
+          <h2>消费明细 / Transaction History</h2>
+          <button class="btn btn-primary" @click="openForm()">+ 添加记录</button>
+        </div>
+
+        <table class="data-table ledger-table">
+          <colgroup>
+            <col style="width: 15%;">
+            <col style="width: 40%;">
+            <col style="width: 18%;">
+            <col style="width: 15%;">
+            <col style="width: 12%;">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>DATE</th>
+              <th>ITEM / TAGS</th>
+              <th>PLATFORM</th>
+              <th>AMOUNT</th>
+              <th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in records" :key="item.id">
+              <td>{{ item.expenseDate }}</td>
+              <td>
+                <div class="ledger-item-name" :title="item.itemName">{{ item.itemName }}</div>
+                <span class="tag" v-for="tag in item.tagsList || []" :key="tag">{{ tag }}</span>
+              </td>
+              <td>{{ item.platform }}</td>
+              <td :class="{ 'rate-down': item.amount < 0 }">¥ {{ formatCurrency(item.amount) }}</td>
+              <td>
+                <div class="ledger-actions">
+                  <span class="action-link" @click="editItem(item)">编辑</span>
+                  <span class="action-link" @click="deleteItem(item.id)">删除</span>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="records.length === 0">
+              <td colspan="5" style="text-align: center; color: var(--color-text-muted);">暂无记录</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="pagination">
+          <button class="btn btn-pagination" :disabled="currentPage <= 1" @click="changePage(currentPage - 1)">PREV</button>
+          <span class="page-info">PAGE {{ currentPage }} OF {{ totalPages }}</span>
+          <button class="btn btn-pagination" :disabled="currentPage >= totalPages" @click="changePage(currentPage + 1)">NEXT</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal-content">
+        <h3>{{ isEditing ? '编辑记录' : '新增记录' }}</h3>
+        <div class="form-group">
+          <label>日期</label>
+          <div class="date-input-group">
+            <input type="text" maxlength="4" placeholder="YYYY" v-model="formDate.year" class="date-box date-year">
+            <span class="date-separator">/</span>
+            <input type="text" maxlength="2" placeholder="MM" v-model="formDate.month" class="date-box date-month">
+            <span class="date-separator">/</span>
+            <input type="text" maxlength="2" placeholder="DD" v-model="formDate.day" class="date-box date-day">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>项目名称</label>
+          <input type="text" v-model="formData.itemName">
+        </div>
+        <div class="form-group">
+          <label>平台</label>
+          <select v-model="selectedPlatform" @change="onPlatformChange">
+            <option v-for="platform in platformOptions" :key="platform" :value="platform">{{ platform }}</option>
+            <option value="__custom__">其他（你最好知道你在做什么）</option>
+          </select>
+          <input v-if="selectedPlatform === '__custom__'"
+                 type="text"
+                 v-model="formData.platform"
+                 placeholder="请输入平台名称"
+                 style="margin-top: 8px;">
+        </div>
+        <div class="form-group">
+          <label>金额</label>
+          <input type="number" v-model="formData.amount">
+        </div>
+        <div class="form-group">
+          <label>标签（用逗号分隔）</label>
+          <input type="text" v-model="formData.tagsInput">
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-default" @click="closeForm">取消</button>
+          <button class="btn btn-primary" @click="submitForm">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showDeleteConfirm" class="modal-overlay">
+      <div class="modal-content">
+        <h3>确认删除</h3>
+        <p style="line-height: 1.6; color: var(--color-text-muted); margin: 12px 0 20px;">
+          确定要删除这条记录吗？这条记录将会永久消失！（真的很久！）
+        </p>
+        <div class="modal-actions">
+          <button class="btn btn-default" @click="closeDeleteConfirm">取消</button>
+          <button class="btn btn-danger" @click="confirmDelete">删除</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 审批表单 -->
     <div v-if="showAuditForm" class="modal-overlay" id="auditModal">
       <div class="audit-modal-content">
 
