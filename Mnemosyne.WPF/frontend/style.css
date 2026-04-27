@@ -90,16 +90,19 @@
 /* 全局 CSS 变量：定义颜色、字体等全局样式属性，方便维护和统一风格 */
 :root {
     font-size: 62.5%;
-    --color-bg: #F4F0EA;
-    --color-bg-dark: #EDE7DE;
+    --color-bg: #FAF3E5;
+    --color-bg-dark: #E0D9CC;
+    --color-surface: #FFF9EE;
     --color-text-main: #1C1C1C;
     --color-text-muted: #7A7A7A;
     --color-border: #E2DCD0;
+    --color-error: #BA1A1A;
+    --color-deep-red: #8B000;
+    --color-deep-green: #006400;
     --color-firefly: #8FCACA;
     --color-raiden-mei: #4B0082;
     --color-kafka: #9A66AF;
     --color-makise-kurisu: #B63B40;
-    --color-error: #BA1A1A;
     --color-intellect: #4EA7B9;
     --color-psyche: #6448B6;
     --color-psysique: #B03A5A;
@@ -193,15 +196,17 @@ h2 {
 .kpi-card {
     border: 1px solid var(--color-border);
     padding: var(--space-2); /* 稍微调整内边距适应更紧凑的卡片 */
-    background-color: transparent;
-    transition: background-color 0.3s ease; /* 增加Hover过渡动画 */
+    background-color: var(--color-surface);
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
 }
 
     .kpi-card:hover {
-        background-color: #EBE6DE;
+        background-color: var(--color-surface);
+        box-shadow: 6px 6px 0 rgba(28, 28, 28, 0.08);
+        transform: translate(-2px, -2px);
     }
 
 /* 指标副标题样式 */
@@ -236,16 +241,17 @@ h2 {
 .chart-card {
     border: 1px solid var(--color-border);
     padding: var(--space-2_4);
+    background: var(--color-surface);
 }
 
 /* 支出增加用深红 */
 .rate-up {
-    color: #8B0000;
+    color: var(--color-error);
 }
 
 /* 支出减少用深绿 */
 .rate-down {
-    color: #006400;
+    color: var(--color-deep-green);
 }
 
 /* 持平用淡灰 */
@@ -416,7 +422,7 @@ h2 {
 }
 /* 弹窗主体 */
 .modal-content {
-    background: #F4F0EA;
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     padding: var(--space-3);
     width: 400px;
@@ -438,7 +444,7 @@ h2 {
         border: 1px solid #CCC;
         box-sizing: border-box;
         font-family: inherit;
-        background: var(--color-bg);
+        background: var(--color-surface);
         color: var(--color-text-main);
     }
 
@@ -525,12 +531,12 @@ h2 {
 
 /* 变体：危险操作*/
 .btn-danger {
-    border-color: #8B0000;
-    color: #8B0000;
+    border-color: var(--color-deep-red);
+    color: var(--color-deep-red);
 }
 
     .btn-danger:hover:not(:disabled) {
-        background: #8B0000;
+        background: var(--color-deep-red);
         color: var(--color-bg);
     }
 
@@ -552,7 +558,7 @@ h2 {
     font-family: var(--font-family);
     font-size: var(--fs-md);
     /* 颜色与背景 */
-    background-color: var(--color-bg);
+    background-color: var(--color-surface);
     color: var(--color-text-main);
     /* 边框与边距 */
     padding: var(--space-0_6) var(--space-1_2);
@@ -576,6 +582,6 @@ h2 {
     }
 
     .custom-select option {
-        background-color: var(--color-bg);
+        background-color: var(--color-surface);
         color: var(--color-text-main);
     }

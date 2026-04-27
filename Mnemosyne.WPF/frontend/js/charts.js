@@ -38,6 +38,8 @@ const { formatCurrency } = MnemosyneUtils;
     const bgColor = rootStyle.getPropertyValue('--color-bg').trim();
     /** @type {string} 深色背景 */
     const darkBgColor = rootStyle.getPropertyValue('--color-bg-dark').trim();
+    /** @type {string} 表面色 */
+    const surfaceColor = rootStyle.getPropertyValue('--color-surface').trim();
     /** @type {string} 主文本色 */
     const mainTextColor = rootStyle.getPropertyValue('--color-text-main').trim();
     /** @type {string} 次文本色 */
@@ -61,7 +63,7 @@ const { formatCurrency } = MnemosyneUtils;
         return {
             backgroundColor: 'transparent',
             tooltip: {
-                backgroundColor: bgColor,
+                backgroundColor: surfaceColor,
                 borderColor: borderColor,
                 borderWidth: 1,
                 textStyle: {
@@ -99,9 +101,9 @@ const { formatCurrency } = MnemosyneUtils;
                     fontFamily: fontPrimary
                 },
                 itemStyle: {
-                    color: darkBgColor,
+                    color: bgColor,
                     borderWidth: 4,
-                    borderColor: bgColor,
+                    borderColor: surfaceColor,
                     borderRadius: 4
                 },
                 visualMap: {

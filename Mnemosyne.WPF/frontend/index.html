@@ -17,9 +17,10 @@
     }
 
     .chart-container {
-      height: 400px;
+      height: 350px;
       border: 1px solid var(--color-border);
       padding: 20px;
+      background: var(--color-surface);
     }
   </style>
 </head>
@@ -106,10 +107,10 @@
         </div>
 
         <!-- 数据结果展示区 -->
-        <div v-if="sqlError" style="color: #8B0000; margin-top: 15px; font-weight: bold; background: #FFCCCC; padding: 10px; border-radius: 4px;">
+        <div v-if="sqlError" style="color: var(--color-deep-red); margin-top: 15px; font-weight: bold; background: #FFCCCC; padding: 10px; border-radius: 4px;">
           ERROR: {{ sqlError }}
         </div>
-        <div v-if="sqlSuccessMessage" style="color: #006400; margin-top: 15px; font-weight: bold; background: #CCFFCC; padding: 10px; border-radius: 4px;">
+        <div v-if="sqlSuccessMessage" style="color: var(--color-deep-green); margin-top: 15px; font-weight: bold; background: #CCFFCC; padding: 10px; border-radius: 4px;">
           SUCCESS: {{ sqlSuccessMessage }}
         </div>
         <div v-if="sqlResult" style="margin-top: 15px; overflow: auto; border: 1px solid #CCC; max-height: 300px;">

@@ -33,7 +33,7 @@
                 }
             },
             template: `
-                <div class="filter-section" style="margin: 20px 0; background: var(--bg-card); padding: 15px; border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                <div class="filter-section" style="margin: 20px 0; background: var(--color-surface); padding: 15px; border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
                     <label style="font-weight: 500;">选择年份:</label>
                     <select :value="year" 
                             @change="$emit('update:year', Number($event.target.value)); $emit('change')" 
