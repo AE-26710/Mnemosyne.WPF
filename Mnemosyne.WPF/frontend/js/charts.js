@@ -13,9 +13,9 @@ ECharts Default Color Palette:
 #67727e	深灰蓝（备用）
 */
 
+(function (global) {
 const { formatCurrency } = MnemosyneUtils;
 
-(function (global) {
     /** @type {Record<string, Function>} 图表渲染函数集合 */
     const MnemosyneCharts = {};
     /** @type {WeakMap<HTMLElement, ResizeObserver>} DOM 与 ResizeObserver 的映射 */

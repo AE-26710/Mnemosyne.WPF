@@ -1,3 +1,4 @@
+(function(global) {
 // 全局记录等待中的请求
 let messageIdCounter = 0;
 const pendingRequests = new Map();
@@ -117,5 +118,5 @@ const api = {
     }
 };
 
-// 导出 api 供其他 js 文件使用（如果你使用了模块化）
-// export default api;
+global.api = api;
+})(window);

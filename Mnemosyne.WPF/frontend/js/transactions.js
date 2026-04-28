@@ -1,7 +1,8 @@
+(function() {
 const { createApp, ref, reactive, computed, onMounted } = Vue;
 const { formatCurrency: formatExpenseCurrency, yuanToCents } = MnemosyneUtils;
 
-createApp({
+const app = createApp({
     components: {
         'audit-scale-five': MnemosyneComponents.AuditScaleFive,
         'audit-scale-binary': MnemosyneComponents.AuditScaleBinary
@@ -371,4 +372,7 @@ createApp({
             refreshEcho
         };
     }
-}).mount('#app');
+});
+app.use(ElementPlus);
+app.mount('#app');
+})();
