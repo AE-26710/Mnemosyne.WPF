@@ -11,7 +11,7 @@
       background-color: var(--color-surface);
       border: 1px dashed var(--color-text-main);
       padding: var(--space-1_5);
-      margin-bottom: var(--space-3);
+      margin-bottom: var(--space-1_5);
       display: flex;
       align-items: center;
       gap: 15px;
@@ -82,12 +82,12 @@
       justify-content: space-between;
       align-items: center;
       gap: var(--space-2);
-      margin-bottom: var(--space-2);
+      margin-bottom: var(--space-1_5);
     }
 
-    .ledger-header h2 {
-      margin: var(--space-0);
-    }
+      .ledger-header h2 {
+        margin: var(--space-0);
+      }
 
     .action-link {
       color: var(--color-deep-red);
@@ -101,27 +101,27 @@
       width: 100%;
     }
 
-    .ledger-table th,
-    .ledger-table td {
-      height: 56px;
-      line-height: 1.35;
-      vertical-align: middle;
-      box-sizing: border-box;
-    }
+      .ledger-table th,
+      .ledger-table td {
+        height: 56px;
+        line-height: 1.35;
+        vertical-align: middle;
+        box-sizing: border-box;
+      }
 
-    /* 列对齐设置 */
-    .ledger-table th:nth-child(4),
-    .ledger-table td:nth-child(4),
-    .ledger-table th:nth-child(5),
-    .ledger-table td:nth-child(5) {
-      text-align: right;
-    }
+        /* 列对齐设置 */
+        .ledger-table th:nth-child(4),
+        .ledger-table td:nth-child(4),
+        .ledger-table th:nth-child(5),
+        .ledger-table td:nth-child(5) {
+          text-align: right;
+        }
 
-    .ledger-table td:nth-child(1),
-    .ledger-table td:nth-child(3),
-    .ledger-table td:nth-child(4) {
-      white-space: nowrap;
-    }
+        .ledger-table td:nth-child(1),
+        .ledger-table td:nth-child(3),
+        .ledger-table td:nth-child(4) {
+          white-space: nowrap;
+        }
 
     .ledger-item-name {
       line-height: 1.35;
@@ -418,6 +418,71 @@
       white-space: nowrap;
       user-select: none;
     }
+
+    /* 交易筛选栏 */
+    .transaction-filter-bar {
+      display: flex;
+      align-items: flex-end;
+      gap: var(--space-1);
+      margin-bottom: var(--space-1_5);
+      /*padding: var(--space-1_2);
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);*/
+    }
+
+    .filter-control {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-0_5);
+      min-width: 0;
+    }
+
+      .filter-control span {
+        font-size: var(--fs-xs);
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+      }
+
+      .filter-control select,
+      .filter-control input {
+        width: 100%;
+        height: 36px;
+        box-sizing: border-box;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text-main);
+        font-family: inherit;
+        font-size: var(--fs-sm);
+        padding: var(--space-0_8) var(--space-1);
+        transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+        .filter-control select:hover,
+        .filter-control input:hover {
+          border-color: #B3A894;
+        }
+
+        .filter-control select:focus,
+        .filter-control input:focus {
+          outline: none;
+          border-color: var(--color-text-main);
+          box-shadow: 0 0 0 2px rgba(28, 28, 28, 0.06);
+        }
+
+    .filter-control {
+      flex: 0 0 140px;
+    }
+
+    .filter-search {
+      flex: 1 1 260px;
+    }
+
+    .filter-add-btn {
+      height: 36px;
+      min-width: 88px;
+    }
   </style>
 </head>
 <body>
@@ -437,10 +502,54 @@
     </div>
 
     <div class="page-layout">
-      <div class="records-section" style="border-top: none;">
+      <div class="records-section">
         <div class="ledger-header">
           <h2>消费明细 / Transaction History</h2>
-          <button class="btn btn-primary" @click="openForm()">+ 添加记录</button>
+        </div>
+
+        <div class="transaction-filter-bar" aria-label="Transaction filters">
+          <label class="filter-control filter-control">
+            <select>
+              <option>本周</option>
+              <option selected>本月</option>
+              <option>今年</option>
+              <option>自定义</option>
+            </select>
+          </label>
+
+          <label class="filter-control filter-control">
+            <select>
+              <option v-for="platform in platformOptions" :key="platform" :value="platform">{{ platform }}</option>
+              <option>其他</option>
+            </select>
+          </label>
+
+          <label class="filter-control filter-control">
+            <select>
+              <option selected>全部标签</option>
+              <option>日用</option>
+              <option>电子</option>
+              <option>食物</option>
+              <option>娱乐</option>
+            </select>
+          </label>
+
+          <label class="filter-control filter-control">
+            <select>
+              <option selected>不限金额</option>
+              <option>¥0 - ¥100</option>
+              <option>¥100 - ¥500</option>
+              <option>¥500 - ¥1000</option>
+              <option>¥1000+</option>
+              <option>自定义</option>
+            </select>
+          </label>
+
+          <label class="filter-control filter-search">
+            <input type="search" placeholder="搜索商品名........">
+          </label>
+
+          <button class="btn btn-primary filter-add-btn" @click="openForm()">新增</button>
         </div>
 
         <table class="data-table ledger-table">
