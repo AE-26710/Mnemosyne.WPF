@@ -2,6 +2,8 @@
     const utils = {};
     // 配置平台
     global.PLATFORM_OPTIONS = ['Steam', '崩坏：星穹铁道', '崩坏3', '战争雷霆'];
+    // 配置标签
+    global.TAG_OPTIONS = ['实体周边', '数字增值', '买断游戏', '闲置变现', '流萤'];
     // 元转换为整数分
     utils.yuanToCents = (value) => {
         const num = Number(value);

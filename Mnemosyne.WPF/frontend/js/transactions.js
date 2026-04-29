@@ -16,9 +16,11 @@ const app = createApp({
         const mutedTextColor = (rootStyle.getPropertyValue('--color-text-muted')).trim();
 
         const PLATFORM_OPTIONS = window.PLATFORM_OPTIONS;
+        const TAG_OPTIONS = window.TAG_OPTIONS;
         const records = ref([]);
         const currentPage = ref(1);
         const totalPages = ref(1);
+
         const formModal = ref({
             show: false,
             isEditing: false,
@@ -29,17 +31,15 @@ const app = createApp({
         });
 
         const showAuditForm = ref(false);
-        const isEditing = ref(false);
-        const editingId = ref(null);
-        const selectedPlatform = ref(PLATFORM_OPTIONS[0]);
         const showDeleteConfirm = ref(false);
         const pendingDeleteId = ref(null);
 
         const filters = ref({
-            datePeriod: '全部时间',
-            platform: '全部平台',
+            datePeriod: '',
+            platform: '',
             tags: [],
             amountRange: [null, null],
+            itemName: '',
         })
 
         const fetchRecords = async (page = 1) => {
@@ -350,6 +350,7 @@ const app = createApp({
 
         return {
             PLATFORM_OPTIONS,
+            TAG_OPTIONS,
             records,
             currentPage,
             totalPages,
@@ -358,7 +359,6 @@ const app = createApp({
             formModal,
             filters,
             platformOptions: PLATFORM_OPTIONS,
-            selectedPlatform,
             showDeleteConfirm,
             openForm,
             editItem,

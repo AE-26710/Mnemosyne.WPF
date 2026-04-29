@@ -93,9 +93,15 @@
     --color-bg: #FAF3E5;
     --color-bg-dark: #E0D9CC;
     --color-surface: #FFF9EE;
+    --color-surf-container-low: #faf3e5;
+    --color-surf-container: #f4eddf;
+    --color-surf-container-high: #eee8da;
+    --color-surf-container-highest: #e8e2d4;
     --color-text-main: #1C1C1C;
     --color-text-muted: #7A7A7A;
     --color-border: #E2DCD0;
+    --color-outline: #7D7761;
+    --color-outline-variant: #CFC6AD;
     --color-error: #BA1A1A;
     --color-deep-red: #8B0000;
     --color-deep-green: #006400;
@@ -132,6 +138,16 @@
     --space-3: 3rem;
     --space-4: 4rem;
     --space-8: 8rem;
+    --el-border-radius-base: 0px;
+    --el-border-radius-small: 0px;
+    --el-border-radius-round: 0px;
+    --el-border-radius-circle: 0px;
+    --el-font-family: var(--font-primary);
+    --el-text-color-regular: var(--color-text-main);
+    --el-fill-color-blank: var(--color-surface);
+    --el-border-color: var(--color-border);
+    --el-border-color-hover: #B3A894;
+    --el-color-primary: var(--color-text-main);
 }
 
 /* 全局基础样式：这是背景色、文本颜色、字体等的基础设置，这些样式会应用到整个页面 */
@@ -142,10 +158,10 @@ html::-webkit-scrollbar {
 }
 
 body {
-    font-size: 1.6rem;
-    background-color: var(--color-bg);
-    color: var(--color-text-main);
     font-family: var(--font-primary);
+    font-size: 1.6rem;
+    font-weight: 500;
+    background-color: var(--color-bg);
     margin: var(--space-0);
     padding: var(--space-0) var(--space-2) var(--space-8);
     -webkit-font-smoothing: antialiased;
@@ -182,6 +198,125 @@ h2 {
     display: inline-block;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+/* Element Plus 全局设置：确保所有 Element Plus 组件使用与页面一致的字体 */
+[class^="el-"],
+[class*=" el-"],
+.el-popper {
+    font-family: var(--font-primary);
+}
+
+/* 隐藏下拉选择框的小三角 */
+.el-popper__arrow,
+.el-popper__arrow::before,
+.el-popper__arrow::after {
+  display: none !important;
+}
+
+/* Element Plus 选择器样式 */
+.el-select__wrapper,
+.el-input__wrapper {
+    border-radius: 0;
+    background-color: var(--color-surface);
+    font-size: var(--fs-sm);
+    transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.el-select__selected-item,
+.el-input__inner {
+    color: var(--color-text-main) !important;
+    font-size: var(--fs-sm);
+}
+
+/* Element Plus 下拉选择框样式 */
+.el-select__wrapper.is-hovering,
+.el-input__wrapper:hover {
+    box-shadow: 0 0 0 1px #B3A894 inset;
+}
+
+.el-select-dropdown {
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+}
+
+.el-select-dropdown__item {
+    font-size: var(--fs-sm);
+}
+
+    .el-select-dropdown__item.is-selected {
+        font-weight: 500;
+        color: var(--color-surface);
+        background-color: var(--color-outline) !important;
+    }
+
+    .el-select-dropdown__item.is-hovering,
+    .el-select-dropdown__item:hover {
+        background-color: var(--color-outline-variant);
+    }
+
+/* Element Plus tag样式 */
+.el-tag {
+    border-radius: 0;
+    background-color: var(--color-surf-container-highest);
+    color: var(--color-text-main);
+    border-color: var(--color-border);
+}
+
+/* Element Plus 输入框样式 */
+.el-input__inner {
+    font-family: inherit;
+    font-weight: 500;
+}
+
+.el-tag .el-tag__close {
+  color: var(--color-text-muted);
+}
+
+.el-tag .el-tag__close:hover {
+  background-color: var(--color-outline);
+  color: var(--color-surface);
+}
+
+.el-tag .el-tag__close:active {
+  background-color: var(--color-outline-variant);
+}
+
+/* Element Plus 日期选择器样式*/
+.el-popper {
+    --el-popper-border-radius: 0px;
+}
+
+.el-date-editor.el-input__wrapper {
+    align-items: center;
+}
+
+.el-date-editor .el-range-input,
+.el-date-editor .el-range-separator {
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+}
+
+.el-date-editor .el-range-input {
+    height: 100%;
+}
+
+.el-picker-panel {
+    background: var(--color-surface);
+}
+
+.el-picker-panel__body {
+    --el-datepicker-inrange-bg-color: var(--color-surf-container-high);
+}
+
+.el-date-range-picker {
+    --el-datepicker-inner-border-color: var(--color-border);
+    --el-datepicker-inrange-hover-bg-color: var(--color-bg-dark);
+}
+
+.el-popper.is-light {
+    border: var(--color-border);
 }
 
 /* 指标卡片的网格布局 */
@@ -260,31 +395,28 @@ h2 {
 }
 
 /* 支出明细数据表区域 */
-.records-section {
-    padding-top: var(--space-2);
-    border-top: 1px solid var(--color-border);
+.records-section
+
+.records-section h2 > span {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-1);
 }
 
-    .records-section h2 > span {
-        display: inline-flex;
-        align-items: baseline;
-        gap: var(--space-1);
-    }
+/* 支出明细数据表标题区域 */
+.records-section .section-title {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1_5);
+}
 
-    /* 支出明细数据表标题区域 */
-    .records-section .section-title {
-        display: flex;
-        align-items: baseline;
-        gap: var(--space-1_5);
-    }
-
-    /* 支出明细数据表主标题 */
-    .records-section .subtitle {
-        font-size: var(--fs-sm);
-        color: var(--color-text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
+/* 支出明细数据表主标题 */
+.records-section .subtitle {
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
 
 .data-table {
     width: 100%;
@@ -432,26 +564,26 @@ h2 {
     margin-top: var(--space-1_5);
 }
 
-    .form-group label {
-        display: block;
-        padding-bottom: var(--space-0_5);
-        font-size: var(--fs-md);
-    }
+.form-group label {
+    display: block;
+    padding-bottom: var(--space-0_5);
+    font-size: var(--fs-md);
+}
 
-    .form-group input, .form-group select {
-        width: 100%;
-        padding: var(--space-0_8);
-        border: 1px solid #CCC;
-        box-sizing: border-box;
-        font-family: inherit;
-        background: var(--color-surface);
-        color: var(--color-text-main);
-    }
+.form-group input, .form-group select {
+    width: 100%;
+    padding: var(--space-0_8);
+    border: 1px solid #CCC;
+    box-sizing: border-box;
+    font-family: inherit;
+    background: var(--color-surface);
+    color: var(--color-text-main);
+}
 
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #B3A894;
-        }
+    .form-group input:focus, .form-group select:focus {
+        outline: none;
+        border-color: #B3A894;
+    }
 
 /* 此处定义了弹窗底部的操作按钮行为，使用 Flexbox 来实现右对齐和按钮之间的间距 */
 .modal-actions {
@@ -489,12 +621,11 @@ h2 {
 }
 
 /* 基础按钮样式 */
-/* 基础按钮样式 */
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-0_8) var(--space-2_4);
+    padding: var(--space-0_5) var(--space-2_4);
     font-family: inherit;
     font-size: var(--fs-sm);
     font-weight: 500;
@@ -520,7 +651,7 @@ h2 {
     .btn-primary:hover:not(:disabled),
     .btn-pagination:hover:not(:disabled) {
         background: var(--color-text-main);
-        color: var(--color-bg);
+        color: var(--color-surface);
     }
 
     .btn-primary:disabled,
@@ -548,7 +679,7 @@ h2 {
 
     .btn-default:hover:not(:disabled) {
         background: #CCC;
-        color: var(--color-bg);
+        color: var(--color-surface);
     }
 
 /* 自定义下拉选择框 */

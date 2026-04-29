@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Transactions - Mnemosyne</title>
   <script src="./assets/vendor/vue.global.prod.js"></script>
+  <script src="./assets/vendor/element-plus/index.full.min.js"></script>
+  <link rel="stylesheet" href="./assets/vendor/element-plus/index.css">
   <link rel="stylesheet" href="./style.css">
   <style>
     /* Echo组件专属样式 */
@@ -425,63 +427,24 @@
       align-items: flex-end;
       gap: var(--space-1);
       margin-bottom: var(--space-1_5);
-      /*padding: var(--space-1_2);
-      border: 1px solid var(--color-border);
-      background: var(--color-surface);*/
     }
 
     .filter-control {
+      height: 32px;
       display: flex;
+      flex: 0 0 160px;
       flex-direction: column;
       gap: var(--space-0_5);
       min-width: 0;
     }
 
-      .filter-control span {
-        font-size: var(--fs-xs);
-        color: var(--color-text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        white-space: nowrap;
-      }
-
-      .filter-control select,
-      .filter-control input {
-        width: 100%;
-        height: 36px;
-        box-sizing: border-box;
-        border: 1px solid var(--color-border);
-        background: var(--color-surface);
-        color: var(--color-text-main);
-        font-family: inherit;
-        font-size: var(--fs-sm);
-        padding: var(--space-0_8) var(--space-1);
-        transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-      }
-
-        .filter-control select:hover,
-        .filter-control input:hover {
-          border-color: #B3A894;
-        }
-
-        .filter-control select:focus,
-        .filter-control input:focus {
-          outline: none;
-          border-color: var(--color-text-main);
-          box-shadow: 0 0 0 2px rgba(28, 28, 28, 0.06);
-        }
-
-    .filter-control {
-      flex: 0 0 140px;
-    }
-
     .filter-search {
+      height: 32px;
       flex: 1 1 260px;
     }
 
-    .filter-add-btn {
-      height: 36px;
-      min-width: 88px;
+    .btn-primary.add {
+      height: 32px;
     }
   </style>
 </head>
@@ -508,48 +471,65 @@
         </div>
 
         <div class="transaction-filter-bar" aria-label="Transaction filters">
-          <label class="filter-control filter-control">
-            <select>
-              <option>本周</option>
-              <option selected>本月</option>
-              <option>今年</option>
-              <option>自定义</option>
-            </select>
+          <label class="filter-control">
+            <el-select v-model="filters.datePeriod"
+                       placeholder="全部时间"
+                       clearable>
+              <el-option label="本周" value="week"></el-option>
+              <el-option label="本月" value="month"></el-option>
+              <el-option label="今年" value="year"></el-option>
+              <el-option label="自定义" value="custom"></el-option>
+            </el-select>
+            <!-- 只有选择 custom 时才显示 -->
+            <el-date-picker v-if="filters.datePeriod === 'custom'"
+                            v-model="filters.customRange"
+                            type="daterange"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            range-separator="至"
+                            value-format="YYYY-MM-DD" />
           </label>
 
-          <label class="filter-control filter-control">
-            <select>
-              <option v-for="platform in platformOptions" :key="platform" :value="platform">{{ platform }}</option>
-              <option>其他</option>
-            </select>
+          <label class="filter-control">
+            <el-select v-model="filters.platform"
+                       placeholder="全部平台"
+                       clearable>
+              <el-option v-for="platform in platformOptions" :key="platform" :label="platform" :value="platform"></el-option>
+              <el-option label="其他" value="__other__"></el-option>
+            </el-select>
           </label>
 
-          <label class="filter-control filter-control">
-            <select>
-              <option selected>全部标签</option>
-              <option>日用</option>
-              <option>电子</option>
-              <option>食物</option>
-              <option>娱乐</option>
-            </select>
+          <label class="filter-control">
+            <el-select v-model="filters.amountRange"
+                       placeholder="不限金额"
+                       clearable>
+              <el-option label="¥0 - ¥98" value="[0, 98]"></el-option>
+              <el-option label="¥98 - ¥328" value="[98, 328]"></el-option>
+              <el-option label="¥328 - ¥648" value="[328, 648]"></el-option>
+              <el-option label="¥648+" value="[648, null]"></el-option>
+            </el-select>
           </label>
 
-          <label class="filter-control filter-control">
-            <select>
-              <option selected>不限金额</option>
-              <option>¥0 - ¥100</option>
-              <option>¥100 - ¥500</option>
-              <option>¥500 - ¥1000</option>
-              <option>¥1000+</option>
-              <option>自定义</option>
-            </select>
+          <!-- 标签筛选 -->
+          <label class="filter-control">
+            <el-select v-model="filters.tags"
+                       placeholder="全部标签"
+                       clearable
+                       multiple
+                       collapse-tags
+                       :max-collapse-tags='1'>
+              <el-option v-for="tag in TAG_OPTIONS" :key="tag" :label="tag" :value="tag"></el-option>
+            </el-select>
           </label>
 
-          <label class="filter-control filter-search">
-            <input type="search" placeholder="搜索商品名........">
+          <label class="filter-search">
+            <el-input v-model="filters.itemName" 
+                      placeholder="搜索商品名........"
+                      clearable>
+            </el-input>
           </label>
 
-          <button class="btn btn-primary filter-add-btn" @click="openForm()">新增</button>
+          <button class="btn btn-primary add" @click="openForm()">新增</button>
         </div>
 
         <table class="data-table ledger-table">
