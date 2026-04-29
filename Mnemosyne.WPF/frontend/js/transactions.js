@@ -19,15 +19,28 @@ const app = createApp({
         const records = ref([]);
         const currentPage = ref(1);
         const totalPages = ref(1);
-        const showModal = ref(false);
+        const formModal = ref({
+            show: false,
+            isEditing: false,
+            editingId: null,
+            selectedPlatform: PLATFORM_OPTIONS[0],
+            date: { year: '', month: '', day: '' },
+            data: { itemName: '', platform: '', amount: '', tagsInput: '' }
+        });
+
         const showAuditForm = ref(false);
         const isEditing = ref(false);
         const editingId = ref(null);
         const selectedPlatform = ref(PLATFORM_OPTIONS[0]);
         const showDeleteConfirm = ref(false);
         const pendingDeleteId = ref(null);
-        const formDate = ref({ year: '', month: '', day: '' });
-        const formData = ref({ itemName: '', platform: '', amount: '', tagsInput: '' });
+
+        const filters = ref({
+            datePeriod: '全部时间',
+            platform: '全部平台',
+            tags: [],
+            amountRange: [null, null],
+        })
 
         const fetchRecords = async (page = 1) => {
             try {
@@ -47,29 +60,29 @@ const app = createApp({
         };
 
         const openForm = () => {
-            isEditing.value = false;
-            editingId.value = null;
+            formModal.value.isEditing = false;
+            formModal.value.editingId = null;
 
             const today = new Date();
-            formDate.value = {
+            formModal.value.date = {
                 year: today.getFullYear().toString(),
                 month: String(today.getMonth() + 1).padStart(2, '0'),
                 day: String(today.getDate()).padStart(2, '0'),
             };
 
-            formData.value = {
+            formModal.value.data = {
                 itemName: '',
                 platform: PLATFORM_OPTIONS[0],
                 amount: '',
                 tagsInput: '',
             };
-            selectedPlatform.value = PLATFORM_OPTIONS[0];
-            showModal.value = true;
+            formModal.value.selectedPlatform = PLATFORM_OPTIONS[0];
+            formModal.value.show = true;
         };
 
         const editItem = (item) => {
-            isEditing.value = true;
-            editingId.value = item.id;
+            formModal.value.isEditing = true;
+            formModal.value.editingId = item.id;
 
             let y = '';
             let m = '';
@@ -80,37 +93,37 @@ const app = createApp({
                     [y, m, d] = parts;
                 }
             }
-            formDate.value = { year: y, month: m, day: d };
+            formModal.value.date = { year: y, month: m, day: d };
 
-            formData.value = {
+            formModal.value.data = {
                 itemName: item.itemName,
                 platform: item.platform,
                 amount: formatExpenseCurrency(item.amount),
                 tagsInput: item.tagsList ? item.tagsList.join(',') : '',
             };
 
-            selectedPlatform.value = PLATFORM_OPTIONS.includes(item.platform) ? item.platform : '__custom__';
-            showModal.value = true;
+            formModal.value.selectedPlatform = PLATFORM_OPTIONS.includes(item.platform) ? item.platform : '__custom__';
+            formModal.value.show = true;
         };
 
         const onPlatformChange = () => {
-            if (selectedPlatform.value === '__custom__') {
-                if (PLATFORM_OPTIONS.includes(formData.value.platform)) {
-                    formData.value.platform = '';
+            if (formModal.value.selectedPlatform === '__custom__') {
+                if (PLATFORM_OPTIONS.includes(formModal.value.data.platform)) {
+                    formModal.value.data.platform = '';
                 }
             } else {
-                formData.value.platform = selectedPlatform.value;
+                formModal.value.data.platform = formModal.value.selectedPlatform;
             }
         };
 
         const closeForm = () => {
-            showModal.value = false;
+            formModal.value.show = false;
         };
 
         const submitForm = async () => {
-            const strY = formDate.value.year;
-            const strM = formDate.value.month;
-            const strD = formDate.value.day;
+            const strY = formModal.value.date.year;
+            const strM = formModal.value.date.month;
+            const strD = formModal.value.date.day;
 
             if (!strY || !strM || !strD || isNaN(strY) || isNaN(strM) || isNaN(strD)) {
                 alert('请输入有效的年月日数字！');
@@ -131,11 +144,11 @@ const app = createApp({
 
             const payload = {
                 expenseDate: finalDate,
-                itemName: formData.value.itemName,
-                platform: formData.value.platform,
-                amount: yuanToCents(formData.value.amount),
-                tags: formData.value.tagsInput
-                    ? formData.value.tagsInput
+                itemName: formModal.value.data.itemName,
+                platform: formModal.value.data.platform,
+                amount: yuanToCents(formModal.value.data.amount),
+                tags: formModal.value.data.tagsInput
+                    ? formModal.value.data.tagsInput
                         .split(',')
                         .map((t) => t.trim())
                         .filter((t) => t)
@@ -148,8 +161,8 @@ const app = createApp({
             }
 
             try {
-                if (isEditing.value) {
-                    await api.updateExpense(editingId.value, payload);
+                if (formModal.value.isEditing) {
+                    await api.updateExpense(formModal.value.editingId, payload);
                 } else {
                     await api.addExpense(payload);
                 }
@@ -342,11 +355,8 @@ const app = createApp({
             totalPages,
             changePage,
             formatCurrency: formatExpenseCurrency,
-            showModal,
-            isEditing,
-            editingId,
-            formDate,
-            formData,
+            formModal,
+            filters,
             platformOptions: PLATFORM_OPTIONS,
             selectedPlatform,
             showDeleteConfirm,
