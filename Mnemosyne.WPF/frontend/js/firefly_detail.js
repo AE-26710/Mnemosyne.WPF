@@ -1,6 +1,6 @@
 (function () {
     const { createApp, ref, onMounted, computed } = Vue;
-
+    const { formatCurrency } = MnemosyneUtils;
     createApp({
         components: {
             'date-filter': MnemosyneComponents.DateFilter
