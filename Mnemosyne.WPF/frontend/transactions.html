@@ -484,6 +484,7 @@
             <el-date-picker v-if="filters.datePeriod === 'custom'"
                             v-model="filters.customRange"
                             type="daterange"
+                            unlink-panels
                             start-placeholder="开始日期"
                             end-placeholder="结束日期"
                             range-separator="至"
