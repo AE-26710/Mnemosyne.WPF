@@ -314,21 +314,6 @@
       flex-direction: column;
     }
 
-    /* 文本域 */
-    .audit-textarea {
-      width: 100%;
-      padding: var(--space-1_2);
-      border: 1px solid var(--color-border);
-      background: var(--color-bg);
-      font-family: inherit;
-      resize: vertical
-    }
-
-      .audit-textarea:focus {
-        outline: none;
-        border-color: var(--color-text-main)
-      }
-
     /* 底部 */
     .audit-modal-actions {
       padding: var(--space-2) var(--space-3) var(--space-3);
@@ -445,6 +430,19 @@
 
     .btn-primary.add {
       height: 32px;
+    }
+
+    .date-input-group .el-input__inner {
+      text-align: center;
+    }
+
+    .form-group .el-input,
+    .form-group .el-select {
+      width: 100%;
+    }
+
+    .form-custom-platform {
+      margin-top: 8px;
     }
   </style>
 </head>
@@ -587,36 +585,49 @@
         <div class="form-group">
           <label>日期</label>
           <div class="date-input-group">
-            <input type="text" maxlength="4" placeholder="YYYY" v-model="formModal.date.year" class="date-box date-year">
+            <el-input v-model="formModal.date.year"
+                      maxlength="4"
+                      placeholder="YYYY"
+                      class="date-box date-year">
+            </el-input>
             <span class="date-separator">/</span>
-            <input type="text" maxlength="2" placeholder="MM" v-model="formModal.date.month" class="date-box date-month">
+            <el-input v-model="formModal.date.month"
+                      maxlength="2"
+                      placeholder="MM"
+                      class="date-box date-month">
+            </el-input>
             <span class="date-separator">/</span>
-            <input type="text" maxlength="2" placeholder="DD" v-model="formModal.date.day" class="date-box date-day">
+            <el-input v-model="formModal.date.day"
+                      maxlength="2"
+                      placeholder="DD"
+                      class="date-box date-day">
+            </el-input>
           </div>
         </div>
         <div class="form-group">
           <label>项目名称</label>
-          <input type="text" v-model="formModal.data.itemName">
+          <el-input v-model="formModal.data.itemName"></el-input>
         </div>
         <div class="form-group">
           <label>平台</label>
-          <select v-model="formModal.selectedPlatform" @change="onPlatformChange">
-            <option v-for="platform in platformOptions" :key="platform" :value="platform">{{ platform }}</option>
-            <option value="__custom__">其他（你最好知道你在做什么）</option>
-          </select>
-          <input v-if="formModal.selectedPlatform === '__custom__'"
-                 type="text"
-                 v-model="formModal.data.platform"
-                 placeholder="请输入平台名称"
-                 style="margin-top: 8px;">
+          <el-select v-model="formModal.selectedPlatform"
+                     @change="onPlatformChange">
+            <el-option v-for="platform in platformOptions" :key="platform" :label="platform" :value="platform"></el-option>
+            <el-option label="其他（你最好知道你在做什么）" value="__custom__"></el-option>
+          </el-select>
+          <el-input v-if="formModal.selectedPlatform === '__custom__'"
+                    v-model="formModal.data.platform"
+                    placeholder="请输入平台名称"
+                    class="form-custom-platform">
+          </el-input>
         </div>
         <div class="form-group">
           <label>金额</label>
-          <input type="number" v-model="formModal.data.amount">
+          <el-input v-model="formModal.data.amount" type="number"></el-input>
         </div>
         <div class="form-group">
           <label>标签（用逗号分隔）</label>
-          <input type="text" v-model="formModal.data.tagsInput">
+          <el-input v-model="formModal.data.tagsInput"></el-input>
         </div>
         <div class="modal-actions">
           <button class="btn btn-default" @click="closeForm">取消</button>
@@ -653,12 +664,12 @@
         <div class="audit-target-summary" style="display: flex; gap: var(--space-2); align-items: flex-end; flex-wrap: wrap;">
           <div class="form-group" style="flex: 2; min-width: 200px; margin-top: var(--space-0);">
             <label class="form-question-title">拟购项目</label>
-            <input type="text" v-model="auditForm.itemName">
+            <el-input v-model="auditForm.itemName"></el-input>
           </div>
 
           <div class="form-group" style="flex: 1; min-width: 120px; margin-top: var(--space-0);">
             <label class="form-question-title">申报金额 (¥)</label>
-            <input type="number" v-model="auditForm.amount">
+            <el-input v-model="auditForm.amount" type="number"></el-input>
           </div>
         </div>
 
@@ -682,11 +693,12 @@
                                       :true-label="q.labelLeft"
                                       :false-label="q.labelRight"></audit-scale-binary>
 
-                  <textarea v-else-if="q.type === 'text'"
+                  <el-input v-else-if="q.type === 'text'"
                             v-model="auditForm[q.key]"
-                            class="audit-textarea"
-                            rows="2"
-                            :placeholder="q.placeholder"></textarea>
+                            type="textarea"
+                            :rows="2"
+                            :placeholder="q.placeholder">
+                  </el-input>
                 </div>
               </template>
             </div>
